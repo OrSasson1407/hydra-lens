@@ -10,7 +10,8 @@
     "@hydra-lens/core": "workspace:*"
   },
   "devDependencies": {
-    "vite": "^5.0.0",
-    "typescript": "^5.0.0"
+    "@types/chrome": "^0.1.40",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
   }
 }

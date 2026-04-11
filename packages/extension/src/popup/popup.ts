@@ -70,7 +70,7 @@ function renderMismatches(mismatches: Mismatch[]): void {
 
     // Clicking an item scrolls the flagged element into view in the page
     item.addEventListener('click', () => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
         const tabId = tabs[0]?.id;
         if (tabId == null) return;
         chrome.scripting.executeScript({
@@ -101,7 +101,7 @@ function runScan(): void {
   renderEmpty('Scanning for mismatches…', '⏳');
   setCount(null);
 
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
     const tab = tabs[0];
     footerUrl.textContent = tab?.url ?? '—';
 
@@ -117,7 +117,7 @@ function clearAll(): void {
 }
 
 // ── Message listener (results from content script via background) ─────────────
-chrome.runtime.onMessage.addListener((msg) => {
+chrome.runtime.onMessage.addListener((msg: any) => {
   if (msg.type === 'HYDRALENS_RESULTS') {
     scanning = false;
     btnRun.disabled = false;
@@ -149,6 +149,6 @@ btnRun.addEventListener('click', runScan);
 btnClear.addEventListener('click', clearAll);
 
 // Show current tab URL immediately
-chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
   if (tabs[0]?.url) footerUrl.textContent = tabs[0].url;
 });

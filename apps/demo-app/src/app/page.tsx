@@ -1,3 +1,5 @@
+'use client'; // Move this to the very top
+
 import { Suspense } from 'react';
 import { TimeDisplay } from './TimeDisplay';
 
@@ -52,9 +54,7 @@ export default function Home() {
   );
 }
 
-// ── Client components live in the same file for demo simplicity ──────────────
-'use client';
-
+// ── Client components ────────────────────────────────────────────────────────
 function RandomDisplay() {
   const value =
     typeof window !== 'undefined' ? Math.random().toFixed(6) : '0.500000';
