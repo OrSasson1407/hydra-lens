@@ -5,60 +5,70 @@ export interface Mismatch {
 }
 
 /**
- * A helper to generate a unique CSS selector for an element
+ * Generates a stable, unique CSS selector for an element.
+ * Prefers ID-based paths; falls back to nth-child traversal.
  */
-function getCssPath(el: Element): string {
+export function getCssPath(el: Element): string {
   if (!(el instanceof Element)) return '';
-  const path = [];
-  while (el.nodeType === Node.ELEMENT_NODE) {
-    let selector = el.nodeName.toLowerCase();
-    if (el.id) {
-      selector += `#${el.id}`;
+  const path: string[] = [];
+
+  let current: Element | null = el;
+  while (current && current.nodeType === Node.ELEMENT_NODE) {
+    let selector = current.nodeName.toLowerCase();
+
+    if (current.id) {
+      // Escape special chars in IDs that would break querySelector
+      selector += `#${CSS.escape(current.id)}`;
       path.unshift(selector);
       break;
     } else {
-      let sib = el, nth = 1;
-      while ((sib = sib.previousElementSibling as Element)) nth++;
-      if (nth != 1) selector += `:nth-child(${nth})`;
+      let sib: Element | null = current;
+      let nth = 1;
+      while ((sib = sib.previousElementSibling)) nth++;
+      if (nth !== 1) selector += `:nth-child(${nth})`;
     }
+
     path.unshift(selector);
-    el = el.parentNode as Element;
+    current = current.parentElement;
   }
+
   return path.join(' > ');
 }
 
 /**
- * Compares the Server DOM against the Client DOM.
+ * Compares the Server-Rendered DOM against the live Client DOM.
+ * Returns an array of text-content mismatches found in leaf elements.
  */
 export function detectMismatches(serverHTML: string, clientDoc: Document): Mismatch[] {
-  console.log("🧠 HydraLens Core: Processing DOM trees...");
-  
+  console.log('🧠 HydraLens Core: Processing DOM trees…');
+
   const parser = new DOMParser();
   const serverDoc = parser.parseFromString(serverHTML, 'text/html');
   const mismatches: Mismatch[] = [];
 
-  // We will compare all "leaf" elements (elements with no child elements, just text)
-  const serverLeaves = Array.from(serverDoc.querySelectorAll('*')).filter(el => el.children.length === 0 && el.textContent?.trim() !== '');
-  
-  serverLeaves.forEach((serverEl) => {
+  // Only inspect leaf elements (no child elements, non-empty text)
+  const serverLeaves = Array.from(serverDoc.querySelectorAll('*')).filter(
+    (el) => el.children.length === 0 && (el.textContent?.trim() ?? '') !== ''
+  );
+
+  for (const serverEl of serverLeaves) {
     const selector = getCssPath(serverEl);
-    if (!selector) return;
+    if (!selector) continue;
 
     try {
       const clientEl = clientDoc.querySelector(selector);
-      if (clientEl) {
-        const serverText = serverEl.textContent?.trim() || '';
-        const clientText = clientEl.textContent?.trim() || '';
+      if (!clientEl) continue;
 
-        // THE DIFF: If the text doesn't match, we caught a hydration error!
-        if (serverText !== clientText && serverText !== '') {
-          mismatches.push({ selector, serverText, clientText });
-        }
+      const serverText = serverEl.textContent?.trim() ?? '';
+      const clientText = clientEl.textContent?.trim() ?? '';
+
+      if (serverText !== clientText && serverText !== '') {
+        mismatches.push({ selector, serverText, clientText });
       }
-    } catch (e) {
-      // Ignore invalid selectors generated during parsing
+    } catch {
+      // Invalid selectors generated during parsing — skip silently
     }
-  });
+  }
 
   return mismatches;
 }

@@ -5,15 +5,22 @@
   "description": "Visualizes React hydration mismatches directly in the DOM.",
   "permissions": [
     "activeTab",
-    "scripting"
+    "scripting",
+    "tabs"
   ],
   "action": {
-    "default_title": "Toggle HydraLens"
+    "default_title": "Open HydraLens",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"] 
+      "js": ["content.js"],
+      "run_at": "document_idle"
     }
   ]
 }

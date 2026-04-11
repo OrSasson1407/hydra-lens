@@ -3,21 +3,23 @@ import { resolve } from 'path';
 
 export default defineConfig({
   build: {
-    // Output directory for the compiled extension
     outDir: 'dist',
-    // Clear the dist folder before every build
     emptyOutDir: true,
     rollupOptions: {
-      // Define our entry points
       input: {
-        content: resolve(__dirname, 'src/scripts/content.ts'),
+        content:    resolve(__dirname, 'src/scripts/content.ts'),
+        background: resolve(__dirname, 'src/scripts/background.ts'),
+        popup:      resolve(__dirname, 'src/popup/popup.ts'),
       },
       output: {
-        // FORCE static filenames (no hashes) so manifest.json can find them
+        // Static filenames — Chrome's manifest.json must reference exact names
         entryFileNames: '[name].js',
-        // Prevent code-splitting (Chrome needs the content script as one file)
-        inlineDynamicImports: true, 
+        // Prevent code-splitting; each script must be a single self-contained file
+        inlineDynamicImports: false,
+        manualChunks: undefined,
       },
     },
   },
+  // Copy public/ (manifest + icons) into dist/
+  publicDir: 'public',
 });
