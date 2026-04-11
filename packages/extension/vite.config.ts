@@ -7,19 +7,18 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        content:    resolve(__dirname, 'src/scripts/content.ts'),
-        background: resolve(__dirname, 'src/scripts/background.ts'),
-        popup:      resolve(__dirname, 'src/popup/popup.ts'),
+        // This key ensures the output goes into dist/popup/popup.html
+        'popup/popup': resolve(__dirname, 'src/popup/popup.html'), 
+        'content':     resolve(__dirname, 'src/scripts/content.ts'),
+        'background':  resolve(__dirname, 'src/scripts/background.ts'),
       },
       output: {
-        // Static filenames — Chrome's manifest.json must reference exact names
         entryFileNames: '[name].js',
-        // Prevent code-splitting; each script must be a single self-contained file
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]',
         inlineDynamicImports: false,
-        manualChunks: undefined,
       },
     },
   },
-  // Copy public/ (manifest + icons) into dist/
-  publicDir: 'public',
+  publicDir: 'public', // Copies manifest.json from public/ to dist/
 });
