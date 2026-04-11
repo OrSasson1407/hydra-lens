@@ -1,16 +1,23 @@
-import type { Mismatch } from '@hydra-lens/core';
+import type { Mismatch, Severity } from '@hydra-lens/core';
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
-const btnRun      = document.getElementById('btn-run')!     as HTMLButtonElement;
-const btnClear    = document.getElementById('btn-clear')!   as HTMLButtonElement;
-const statusDot   = document.getElementById('status-dot')!  as HTMLDivElement;
-const statusText  = document.getElementById('status-text')! as HTMLSpanElement;
-const resultsEl   = document.getElementById('results')!     as HTMLDivElement;
-const footerUrl   = document.getElementById('footer-url')!  as HTMLDivElement;
-const countBadge  = document.getElementById('count-badge')! as HTMLDivElement;
+const btnRun     = document.getElementById('btn-run')!     as HTMLButtonElement;
+const btnClear   = document.getElementById('btn-clear')!   as HTMLButtonElement;
+const statusDot  = document.getElementById('status-dot')!  as HTMLDivElement;
+const statusText = document.getElementById('status-text')! as HTMLSpanElement;
+const resultsEl  = document.getElementById('results')!     as HTMLDivElement;
+const footerUrl  = document.getElementById('footer-url')!  as HTMLDivElement;
+const countBadge = document.getElementById('count-badge')! as HTMLDivElement;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let scanning = false;
+
+// ── Severity config ───────────────────────────────────────────────────────────
+const SEV: Record<Severity, { icon: string; label: string; color: string; dimColor: string }> = {
+  critical: { icon: '🔴', label: 'CRITICAL', color: '#ef4444', dimColor: 'rgba(239,68,68,0.15)'  },
+  warning:  { icon: '🟡', label: 'WARNING',  color: '#f59e0b', dimColor: 'rgba(245,158,11,0.12)' },
+  info:     { icon: '🟢', label: 'INFO',     color: '#3b82f6', dimColor: 'rgba(59,130,246,0.12)' },
+};
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function setStatus(state: 'idle' | 'scanning' | 'ok' | 'found' | 'error', msg: string): void {
@@ -31,7 +38,7 @@ function setCount(n: number | null): void {
   }
 }
 
-function truncate(str: string, max = 55): string {
+function truncate(str: string, max = 50): string {
   return str.length > max ? str.slice(0, max) + '…' : str;
 }
 
@@ -43,6 +50,24 @@ function renderEmpty(msg: string, icon = '🔬'): void {
     </div>`;
 }
 
+// ── Copy to clipboard ─────────────────────────────────────────────────────────
+async function copyToClipboard(text: string, btn: HTMLButtonElement): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied';
+    btn.style.color = '#34d399';
+    setTimeout(() => {
+      btn.textContent = orig;
+      btn.style.color = '';
+    }, 1500);
+  } catch {
+    btn.textContent = '✗ Failed';
+    setTimeout(() => { btn.textContent = '⎘ Copy'; }, 1500);
+  }
+}
+
+// ── Render results ────────────────────────────────────────────────────────────
 function renderMismatches(mismatches: Mismatch[]): void {
   if (mismatches.length === 0) {
     renderEmpty('No mismatches found!<br/>This page hydrated cleanly. ✅', '✅');
@@ -50,25 +75,77 @@ function renderMismatches(mismatches: Mismatch[]): void {
   }
 
   resultsEl.innerHTML = '';
-  mismatches.forEach((m, i) => {
-    const item = document.createElement('div');
-    item.className = 'mismatch-item';
-    item.title = `Click to log details to console`;
-    item.innerHTML = `
-      <div class="mismatch-header">
-        <span class="mismatch-index">#${i + 1}</span>
-        <span class="mismatch-selector" title="${m.selector}">${truncate(m.selector, 45)}</span>
-      </div>
-      <div class="diff-row">
-        <span class="diff-label server">SSR</span>
-        <span class="diff-value server">${truncate(m.serverText)}</span>
-      </div>
-      <div class="diff-row">
-        <span class="diff-label client">CSR</span>
-        <span class="diff-value client">${truncate(m.clientText)}</span>
-      </div>`;
 
-    // Clicking an item scrolls the flagged element into view in the page
+  mismatches.forEach((m, i) => {
+    const sev = SEV[m.severity];
+    const item = document.createElement('div');
+    item.className = `mismatch-item sev-${m.severity}`;
+    item.style.borderLeft = `3px solid ${sev.color}`;
+
+    // ── Header row ────────────────────────────────────────────────────────
+    const header = document.createElement('div');
+    header.className = 'mismatch-header';
+
+    const indexBadge = document.createElement('span');
+    indexBadge.className = 'mismatch-index';
+    indexBadge.style.cssText = `background:${sev.dimColor};color:${sev.color};`;
+    indexBadge.textContent = `#${i + 1}`;
+
+    const sevBadge = document.createElement('span');
+    sevBadge.className = 'severity-badge';
+    sevBadge.style.cssText = `color:${sev.color};`;
+    sevBadge.textContent = `${sev.icon} ${sev.label}`;
+
+    // Copy selector button
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'copy-btn';
+    copyBtn.textContent = '⎘ Copy';
+    copyBtn.title = 'Copy CSS selector to clipboard';
+    copyBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Don't trigger the scroll-to behaviour
+      copyToClipboard(m.selector, copyBtn);
+    });
+
+    header.append(indexBadge, sevBadge, copyBtn);
+    item.appendChild(header);
+
+    // ── Component name ────────────────────────────────────────────────────
+    if (m.componentName) {
+      const comp = document.createElement('div');
+      comp.className = 'component-name';
+      comp.textContent = `⚛ ${m.componentName}`;
+      item.appendChild(comp);
+    }
+
+    // ── Selector ──────────────────────────────────────────────────────────
+    const selectorEl = document.createElement('div');
+    selectorEl.className = 'mismatch-selector';
+    selectorEl.title = m.selector;
+    selectorEl.textContent = truncate(m.selector, 42);
+    item.appendChild(selectorEl);
+
+    // ── Diff rows ─────────────────────────────────────────────────────────
+    const diffSSR = document.createElement('div');
+    diffSSR.className = 'diff-row';
+    diffSSR.innerHTML = `
+      <span class="diff-label server">SSR</span>
+      <span class="diff-value server">${truncate(m.serverText)}</span>`;
+
+    const diffCSR = document.createElement('div');
+    diffCSR.className = 'diff-row';
+    diffCSR.innerHTML = `
+      <span class="diff-label client">CSR</span>
+      <span class="diff-value client">${truncate(m.clientText)}</span>`;
+
+    item.append(diffSSR, diffCSR);
+
+    // ── Reason tooltip ────────────────────────────────────────────────────
+    const reason = document.createElement('div');
+    reason.className = 'severity-reason';
+    reason.textContent = m.severityReason;
+    item.appendChild(reason);
+
+    // Click → scroll element into view in the page
     item.addEventListener('click', () => {
       chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
         const tabId = tabs[0]?.id;
@@ -102,9 +179,7 @@ function runScan(): void {
   setCount(null);
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
-    const tab = tabs[0];
-    footerUrl.textContent = tab?.url ?? '—';
-
+    footerUrl.textContent = tabs[0]?.url ?? '—';
     chrome.runtime.sendMessage({ type: 'HYDRALENS_RUN' });
   });
 }
@@ -116,17 +191,20 @@ function clearAll(): void {
   setCount(null);
 }
 
-// ── Message listener (results from content script via background) ─────────────
-chrome.runtime.onMessage.addListener((msg: any) => {
+// ── Message listener ──────────────────────────────────────────────────────────
+chrome.runtime.onMessage.addListener((msg: { type: string; payload?: any }) => {
   if (msg.type === 'HYDRALENS_RESULTS') {
     scanning = false;
     btnRun.disabled = false;
 
     const mismatches: Mismatch[] = msg.payload.mismatches;
     const count = mismatches.length;
+    const critCount = mismatches.filter(m => m.severity === 'critical').length;
 
     if (count === 0) {
       setStatus('ok', 'No mismatches — clean hydration!');
+    } else if (critCount > 0) {
+      setStatus('found', `${critCount} critical, ${count - critCount} other`);
     } else {
       setStatus('found', `Found ${count} mismatch${count !== 1 ? 'es' : ''}`);
     }
@@ -148,7 +226,6 @@ chrome.runtime.onMessage.addListener((msg: any) => {
 btnRun.addEventListener('click', runScan);
 btnClear.addEventListener('click', clearAll);
 
-// Show current tab URL immediately
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
   if (tabs[0]?.url) footerUrl.textContent = tabs[0].url;
 });

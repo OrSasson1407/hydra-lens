@@ -1,13 +1,102 @@
+export type Severity = 'critical' | 'warning' | 'info';
+
 export interface Mismatch {
   selector: string;
   serverText: string;
   clientText: string;
+  severity: Severity;
+  severityReason: string;
+  componentName: string | null;
 }
 
+// ── Severity classification ───────────────────────────────────────────────────
+
 /**
- * Generates a stable, unique CSS selector for an element.
- * Prefers ID-based paths; falls back to nth-child traversal.
+ * Tags that are structurally important — wrong content here affects
+ * navigation, accessibility, or SEO in a meaningful way.
  */
+const CRITICAL_TAGS = new Set([
+  'a', 'button', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+  'label', 'title', 'nav', 'th',
+]);
+
+/**
+ * Patterns in the server text that strongly suggest a dynamic/cosmetic value.
+ * A mismatch here is almost certainly intentional (timestamp, random, locale).
+ */
+const INFO_PATTERNS: RegExp[] = [
+  /^\d{10,}$/,           // Unix ms timestamp
+  /^\d{1,2}[/:]\d{2}/,  // Time / date fragment  e.g. 12:34
+  /^[\d,]+(\.\d+)?$/,   // Plain number / formatted number
+  /^0\.\d+$/,           // Random float  e.g. 0.482910
+];
+
+export function classifySeverity(
+  serverText: string,
+  clientEl: Element
+): { severity: Severity; reason: string } {
+  const tag = clientEl.tagName.toLowerCase();
+
+  if (CRITICAL_TAGS.has(tag)) {
+    return {
+      severity: 'critical',
+      reason: `<${tag}> content affects navigation / accessibility`,
+    };
+  }
+
+  for (const pattern of INFO_PATTERNS) {
+    if (pattern.test(serverText.trim())) {
+      return {
+        severity: 'info',
+        reason: 'Looks like a timestamp or dynamic number — likely intentional',
+      };
+    }
+  }
+
+  return {
+    severity: 'warning',
+    reason: 'Text content differs between server and client renders',
+  };
+}
+
+// ── React component name extraction ──────────────────────────────────────────
+
+/**
+ * Walks up the React fiber tree from a DOM node to find the nearest
+ * named user-land component (skips host fibers like div/span).
+ */
+export function getReactComponentName(el: Element): string | null {
+  try {
+    const fiberKey = Object.keys(el).find(
+      (k) => k.startsWith('__reactFiber') || k.startsWith('__reactInternalInstance')
+    );
+    if (!fiberKey) return null;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let fiber: any = (el as any)[fiberKey];
+
+    while (fiber) {
+      const name: string | undefined =
+        fiber.type?.displayName ??
+        fiber.type?.name ??
+        fiber.elementType?.displayName ??
+        fiber.elementType?.name;
+
+      if (name && /^[A-Z]/.test(name) && !name.startsWith('_')) {
+        return name;
+      }
+
+      fiber = fiber.return;
+    }
+  } catch {
+    // Fiber tree inaccessible
+  }
+
+  return null;
+}
+
+// ── CSS selector generation ───────────────────────────────────────────────────
+
 export function getCssPath(el: Element): string {
   if (!(el instanceof Element)) return '';
   const path: string[] = [];
@@ -17,7 +106,6 @@ export function getCssPath(el: Element): string {
     let selector = current.nodeName.toLowerCase();
 
     if (current.id) {
-      // Escape special chars in IDs that would break querySelector
       selector += `#${CSS.escape(current.id)}`;
       path.unshift(selector);
       break;
@@ -35,10 +123,8 @@ export function getCssPath(el: Element): string {
   return path.join(' > ');
 }
 
-/**
- * Compares the Server-Rendered DOM against the live Client DOM.
- * Returns an array of text-content mismatches found in leaf elements.
- */
+// ── Main detection ────────────────────────────────────────────────────────────
+
 export function detectMismatches(serverHTML: string, clientDoc: Document): Mismatch[] {
   console.log('🧠 HydraLens Core: Processing DOM trees…');
 
@@ -46,7 +132,6 @@ export function detectMismatches(serverHTML: string, clientDoc: Document): Misma
   const serverDoc = parser.parseFromString(serverHTML, 'text/html');
   const mismatches: Mismatch[] = [];
 
-  // Only inspect leaf elements (no child elements, non-empty text)
   const serverLeaves = Array.from(serverDoc.querySelectorAll('*')).filter(
     (el) => el.children.length === 0 && (el.textContent?.trim() ?? '') !== ''
   );
@@ -63,12 +148,26 @@ export function detectMismatches(serverHTML: string, clientDoc: Document): Misma
       const clientText = clientEl.textContent?.trim() ?? '';
 
       if (serverText !== clientText && serverText !== '') {
-        mismatches.push({ selector, serverText, clientText });
+        const { severity, reason } = classifySeverity(serverText, clientEl);
+        const componentName = getReactComponentName(clientEl);
+
+        mismatches.push({
+          selector,
+          serverText,
+          clientText,
+          severity,
+          severityReason: reason,
+          componentName,
+        });
       }
     } catch {
-      // Invalid selectors generated during parsing — skip silently
+      // Invalid selector — skip silently
     }
   }
+
+  // Sort: critical first, then warning, then info
+  const ORDER: Record<Severity, number> = { critical: 0, warning: 1, info: 2 };
+  mismatches.sort((a, b) => ORDER[a.severity] - ORDER[b.severity]);
 
   return mismatches;
 }
