@@ -9,7 +9,7 @@
     "dev": "pnpm --filter @hydra-lens/core build && pnpm -r --filter !@hydra-lens/core run dev",
     "dev:extension": "pnpm --filter @hydra-lens/core build && pnpm --filter hydra-lens-extension dev",
     "dev:demo": "pnpm --filter demo-app dev",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm build:core && pnpm -r run typecheck"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.40"
