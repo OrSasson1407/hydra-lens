@@ -1,5 +1,8 @@
 name: CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
     branches: [main, master]
@@ -33,6 +36,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # ── Build Core (Required for downstream typechecking) ───────────────────
+      - name: Build core
+        run: pnpm --filter @hydra-lens/core build
+
       # ── Typecheck ───────────────────────────────────────────────────────────
       - name: Typecheck core
         run: pnpm --filter @hydra-lens/core exec tsc --noEmit
@@ -47,17 +54,14 @@ jobs:
       - name: Run tests
         run: pnpm --filter @hydra-lens/core test
 
-      # ── Build ───────────────────────────────────────────────────────────────
-      - name: Build core
-        run: pnpm --filter @hydra-lens/core build
-
+      # ── Build Remaining ─────────────────────────────────────────────────────
       - name: Build extension
         run: pnpm --filter hydra-lens-extension build
 
       - name: Build demo app
         run: pnpm --filter demo-app build
 
-      # ── Upload extension artifact ────────────────────────────────────────────
+      # ── Upload extension artifact ───────────────────────────────────────────
       - name: Upload extension dist
         uses: actions/upload-artifact@v4
         with:
