@@ -24,7 +24,9 @@ HydraLens is a Chrome extension (with companion demo app) that compares server-r
 - [Severity Levels](#severity-levels)
 - [Architecture](#architecture)
 - [Development](#development)
+- [Testing](#testing)
 - [Contributing](#contributing)
+- [Changelog](#changelog)
 - [License](#license)
 
 ---
@@ -83,14 +85,19 @@ Browser Tab (your app)
 
 ```
 hydra-lens/
+├── .github/
+│   └── workflows/
+│       └── ci.yml             # GitHub Actions CI pipeline
 ├── apps/
-│   └── demo-app/          # Next.js 14 app with intentional hydration mismatches
+│   └── demo-app/              # Next.js 14 app with intentional hydration mismatches
 ├── packages/
-│   ├── core/              # Shared detection logic (framework-agnostic TypeScript)
-│   └── extension/         # Chrome MV3 extension (popup + content + background)
-├── package.json
-├── pnpm-workspace.yaml
-└── pnpm-lock.yaml
+│   ├── core/                  # Shared detection logic (framework-agnostic TypeScript)
+│   └── extension/             # Chrome MV3 extension (popup + content + background)
+├── .env.example               # Environment variable template
+├── CHANGELOG.md               # Version history
+├── LICENSE                    # MIT License
+├── package.json               # Root workspace scripts
+└── pnpm-workspace.yaml
 ```
 
 This is a **pnpm workspace** monorepo. All packages share a single lockfile and can reference each other via workspace protocol.
@@ -112,7 +119,7 @@ The heart of HydraLens. A zero-dependency TypeScript library that exposes:
 | `getReactComponentName(el)` | Walks the React fiber tree upward to find the nearest named user-land component. |
 | `getCssPath(el)` | Generates a unique CSS selector path for any DOM element. |
 | `Mismatch` | TypeScript interface describing a single detected mismatch. |
-| `Severity` | `'critical' | 'warning' | 'info'` union type. |
+| `Severity` | `'critical' \| 'warning' \| 'info'` union type. |
 
 **The `Mismatch` interface:**
 
@@ -147,7 +154,7 @@ A **Chrome Manifest V3** extension built with Vite + TypeScript. Three scripts w
 ["activeTab", "scripting", "tabs"]
 ```
 
-No remote code execution, no broad host permissions, no data collection.
+No remote code execution, no broad host permissions, no data collection. Fonts are bundled locally — zero external network requests.
 
 ---
 
@@ -160,9 +167,9 @@ A **Next.js 14** application purpose-built to showcase HydraLens. It ships two i
 | Mismatch | Server renders | Client renders |
 |----------|---------------|----------------|
 | **#1 — Timestamp** | `"Server Rendered"` | `Date.now()` (via `useEffect`) |
-| **#2 — Random float** | `0.500000` | `Math.random().toFixed(6)` |
+| **#2 — Random float** | `0.500000` | `Math.random().toFixed(6)` (via `useEffect`) |
 
-Use this app as a safe sandbox to explore how HydraLens detects and classifies different types of divergence.
+Both use the correct pattern: server and client agree during hydration, then `useEffect` updates the value client-side — giving HydraLens a genuine post-hydration diff to catch.
 
 ---
 
@@ -178,7 +185,7 @@ Use this app as a safe sandbox to explore how HydraLens detects and classifies d
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/hydra-lens.git
+git clone https://github.com/OrSasson1407/hydra-lens.git
 cd hydra-lens
 
 # Install all workspace dependencies
@@ -190,7 +197,7 @@ pnpm install
 **1. Build the extension:**
 
 ```bash
-pnpm --filter extension build
+pnpm build:extension
 ```
 
 The compiled output will be in `packages/extension/dist/`.
@@ -207,7 +214,7 @@ The HydraLens icon will appear in your toolbar.
 ### Running the Demo App
 
 ```bash
-pnpm --filter demo-app dev
+pnpm dev:demo
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in Chrome, then click the HydraLens extension icon and hit **Scan Page** to see it in action.
@@ -283,20 +290,20 @@ pnpm build
 
 ```bash
 # Core library (type-check + compile)
-pnpm --filter @hydra-lens/core build
+pnpm build:core
 
 # Extension (Vite dev/build)
-pnpm --filter extension dev    # watch mode
-pnpm --filter extension build  # production bundle
+pnpm dev:extension    # watch mode — rebuilds on save
+pnpm build:extension  # production bundle
 
 # Demo app (Next.js)
-pnpm --filter demo-app dev
-pnpm --filter demo-app build
+pnpm dev:demo
+pnpm build:demo
 ```
 
 ### Developing the extension with live reload
 
-Run `pnpm --filter extension dev` to start Vite in watch mode. After each rebuild, go to `chrome://extensions` and click the **refresh icon** on the HydraLens card, then reload the target tab.
+Run `pnpm dev:extension` to start Vite in watch mode. After each rebuild, go to `chrome://extensions` and click the **refresh icon** on the HydraLens card, then reload the target tab.
 
 ### Project conventions
 
@@ -304,6 +311,33 @@ Run `pnpm --filter extension dev` to start Vite in watch mode. After each rebuil
 - The core package is intentionally **framework-agnostic** — it only depends on the standard DOM APIs.
 - The extension uses **Chrome Manifest V3** (service workers, no background pages).
 - No runtime dependencies — the extension ships zero third-party libraries.
+- Fonts are bundled locally in `packages/extension/public/fonts/` — no CDN requests.
+
+---
+
+## Testing
+
+Tests live in `packages/core/src/index.test.ts` and are powered by **Vitest** with a **jsdom** environment.
+
+```bash
+# Run tests once
+pnpm --filter @hydra-lens/core test
+
+# Watch mode
+pnpm --filter @hydra-lens/core test:watch
+
+# With coverage report
+pnpm --filter @hydra-lens/core test:coverage
+```
+
+**Current coverage: 25/25 tests passing** across all four exported functions:
+
+| Suite | Tests |
+|-------|-------|
+| `classifySeverity` | 11 |
+| `getCssPath` | 5 |
+| `detectMismatches` | 6 |
+| `getReactComponentName` | 3 |
 
 ---
 
@@ -314,15 +348,23 @@ Contributions are welcome! To get started:
 1. Fork the repository and create a feature branch.
 2. Run `pnpm install` to set up the workspace.
 3. Make your changes, ensuring TypeScript compiles without errors (`pnpm build`).
-4. Open a pull request with a clear description of the change.
+4. Run the test suite (`pnpm --filter @hydra-lens/core test`) and make sure all 25 pass.
+5. Open a pull request with a clear description of the change.
 
 Ideas for contributions:
 
-- Attribute mismatch detection (not just text content)
-- Ignore-list / allowlist configuration for known-intentional mismatches
+- Attribute mismatch detection (`src`, `href`, `aria-*`)
+- Ignore-list / allowlist for known-intentional mismatches
 - Firefox / Safari WebExtension port
 - Export results as JSON or copy-to-clipboard summary
 - More granular severity rules
+- Keyboard shortcut to trigger scan without opening popup
+
+---
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for the full version history.
 
 ---
 
@@ -333,5 +375,5 @@ MIT — see [LICENSE](./LICENSE) for details.
 ---
 
 <div align="center">
-  <sub>Built for developers who care about hydration correctness.</sub>
+  <sub>Built by <a href="https://github.com/OrSasson1407">Or Sasson</a> · For developers who care about hydration correctness.</sub>
 </div>
