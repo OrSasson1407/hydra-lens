@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  ci:
+    name: Typecheck · Test · Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── Checkout ────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Setup pnpm ──────────────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      # ── Setup Node ──────────────────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # ── Install ─────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Typecheck ───────────────────────────────────────────────────────────
+      - name: Typecheck core
+        run: pnpm --filter @hydra-lens/core exec tsc --noEmit
+
+      - name: Typecheck extension
+        run: pnpm --filter hydra-lens-extension exec tsc --noEmit
+
+      - name: Typecheck demo app
+        run: pnpm --filter demo-app exec tsc --noEmit
+
+      # ── Test ────────────────────────────────────────────────────────────────
+      - name: Run tests
+        run: pnpm --filter @hydra-lens/core test
+
+      # ── Build ───────────────────────────────────────────────────────────────
+      - name: Build core
+        run: pnpm --filter @hydra-lens/core build
+
+      - name: Build extension
+        run: pnpm --filter hydra-lens-extension build
+
+      - name: Build demo app
+        run: pnpm --filter demo-app build
+
+      # ── Upload extension artifact ────────────────────────────────────────────
+      - name: Upload extension dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: hydra-lens-extension-${{ github.sha }}
+          path: packages/extension/dist/
+          retention-days: 30
