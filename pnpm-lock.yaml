@@ -70,7 +70,7 @@ importers:
   packages/extension:
     dependencies:
       '@hydra-lens/core':
-        specifier: file:../core
+        specifier: workspace:*
         version: link:../core
     devDependencies:
       '@types/chrome':
