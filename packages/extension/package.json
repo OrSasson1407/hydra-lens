@@ -7,7 +7,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@hydra-lens/core": "workspace:*"
+    "@hydra-lens/core": "file:../core"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.40",

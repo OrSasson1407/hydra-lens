@@ -1,11 +1,9 @@
-'use client'; // Move this to the very top
+'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { TimeDisplay } from './TimeDisplay';
 
 export default function Home() {
-  // Server renders a stable placeholder; TimeDisplay renders Date.now() on the client.
-  // This creates a guaranteed, clearly-visible hydration mismatch.
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-10 p-16 bg-gray-950 text-white">
       <header className="text-center">
@@ -41,7 +39,7 @@ export default function Home() {
           </span>
         </div>
         <p className="text-gray-400 text-sm mb-3">
-          Server always renders <code className="text-red-300">0.5</code>,
+          Server always renders <code className="text-red-300">0.500000</code>,
           client renders a random float.
         </p>
         <RandomDisplay />
@@ -55,8 +53,17 @@ export default function Home() {
 }
 
 // ── Client components ────────────────────────────────────────────────────────
+
 function RandomDisplay() {
-  const value =
-    typeof window !== 'undefined' ? Math.random().toFixed(6) : '0.500000';
+  const [value, setValue] = useState('0.500000');
+
+  useEffect(() => {
+    // Only runs on the client after hydration completes.
+    // Server and client both start with '0.500000', so React is happy —
+    // then the client immediately updates to a random value, giving
+    // HydraLens a real server→client mismatch to detect.
+    setValue(Math.random().toFixed(6));
+  }, []);
+
   return <p className="font-mono text-2xl text-orange-300">{value}</p>;
 }
