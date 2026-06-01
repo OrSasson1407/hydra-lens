@@ -1,20 +1,11 @@
 {
   "manifest_version": 3,
   "name": "HydraLens",
-  "version": "0.1.0",
-  "icons": {
-    "16":  "icon16.png",
-    "48":  "icon48.png",
-    "128": "icon128.png"
-  },
+  "version": "0.2.0",
+  "devtools_page": "src/devtools/devtools.html",
   "action": {
     "default_title": "Open HydraLens",
-    "default_popup": "popup/popup.html",
-    "default_icon": {
-      "16":  "icon16.png",
-      "48":  "icon48.png",
-      "128": "icon128.png"
-    }
+    "default_popup": "popup/popup.html"
   },
   "background": {
     "service_worker": "background.js",
@@ -28,7 +19,7 @@
     }
   ],
   "permissions": ["activeTab", "scripting", "tabs"],
-  "content_security_policy": {
-    "extension_pages": "script-src 'self'; style-src 'self'; font-src 'self'; default-src 'self'"
+  "commands": {
+    "_execute_action": { "suggested_key": { "default": "Ctrl+Shift+H", "mac": "Command+Shift+H" } }
   }
 }

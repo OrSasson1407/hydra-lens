@@ -1,69 +1,28 @@
-'use client';
-
-import { Suspense, useState, useEffect } from 'react';
-import { TimeDisplay } from './TimeDisplay';
+import { CriticalMismatch } from '../components/CriticalMismatch';
+import { WarningMismatch } from '../components/WarningMismatch';
+import { InfoMismatch } from '../components/InfoMismatch';
+import { AttributeMismatch } from '../components/AttributeMismatch';
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-10 p-16 bg-gray-950 text-white">
-      <header className="text-center">
-        <h1 className="text-5xl font-bold tracking-tight mb-3">
-          Hydra<span className="text-red-500">Lens</span> Demo
-        </h1>
-        <p className="text-gray-400 text-lg">
-          A target app with intentional hydration mismatches
-        </p>
-      </header>
+    <main className="min-h-screen p-8 bg-gray-50 font-sans">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <header className="border-b pb-6">
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+            HydraLens <span className="text-blue-600">Playground</span>
+          </h1>
+          <p className="text-gray-500 mt-2">
+            This page contains deliberate hydration mismatches. Open the HydraLens extension and click "Scan Page" to see them detected in real-time.
+          </p>
+        </header>
 
-      {/* ── Mismatch #1: Timestamp ── */}
-      <section className="w-full max-w-md rounded-xl border border-red-500/40 bg-red-950/20 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-red-400 font-bold text-sm uppercase tracking-widest">
-            ⚠ Mismatch #1
-          </span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <CriticalMismatch />
+          <WarningMismatch />
+          <InfoMismatch />
+          <AttributeMismatch />
         </div>
-        <p className="text-gray-400 text-sm mb-3">
-          Server renders <code className="text-red-300">"Server Rendered"</code>,
-          client renders <code className="text-green-400">Date.now()</code>.
-        </p>
-        <Suspense fallback={<span className="font-mono text-xl">Loading…</span>}>
-          <TimeDisplay />
-        </Suspense>
-      </section>
-
-      {/* ── Mismatch #2: Random number ── */}
-      <section className="w-full max-w-md rounded-xl border border-orange-500/40 bg-orange-950/20 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-orange-400 font-bold text-sm uppercase tracking-widest">
-            ⚠ Mismatch #2
-          </span>
-        </div>
-        <p className="text-gray-400 text-sm mb-3">
-          Server always renders <code className="text-red-300">0.500000</code>,
-          client renders a random float.
-        </p>
-        <RandomDisplay />
-      </section>
-
-      <footer className="text-gray-600 text-xs">
-        Install HydraLens extension → click the icon → Scan Page
-      </footer>
+      </div>
     </main>
   );
-}
-
-// ── Client components ────────────────────────────────────────────────────────
-
-function RandomDisplay() {
-  const [value, setValue] = useState('0.500000');
-
-  useEffect(() => {
-    // Only runs on the client after hydration completes.
-    // Server and client both start with '0.500000', so React is happy —
-    // then the client immediately updates to a random value, giving
-    // HydraLens a real server→client mismatch to detect.
-    setValue(Math.random().toFixed(6));
-  }, []);
-
-  return <p className="font-mono text-2xl text-orange-300">{value}</p>;
 }

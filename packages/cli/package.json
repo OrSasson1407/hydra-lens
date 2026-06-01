@@ -1,0 +1,6 @@
+{
+  "name": "@hydra-lens/cli",
+  "version": "0.1.0",
+  "bin": { "hydralens": "./dist/index.js" },
+  "dependencies": { "@hydra-lens/core": "workspace:*" }
+}
