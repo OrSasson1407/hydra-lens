@@ -2,16 +2,13 @@
   "name": "hydra-lens-monorepo",
   "private": true,
   "scripts": {
-    "build": "pnpm --filter @hydra-lens/core build && pnpm --filter hydra-lens-extension build && pnpm --filter demo-app build",
+    "build:extension": "pnpm --filter hydra-lens-extension build",
     "build:core": "pnpm --filter @hydra-lens/core build",
-    "build:extension": "pnpm --filter @hydra-lens/core build && pnpm --filter hydra-lens-extension build",
-    "build:demo": "pnpm --filter demo-app build",
-    "dev": "pnpm --filter @hydra-lens/core build && pnpm -r --filter !@hydra-lens/core run dev",
-    "dev:extension": "pnpm --filter @hydra-lens/core build && pnpm --filter hydra-lens-extension dev",
-    "dev:demo": "pnpm --filter demo-app dev",
-    "typecheck": "pnpm build:core && pnpm -r run typecheck"
+    "build": "pnpm build:core && pnpm build:extension",
+    "test": "pnpm -r test"
   },
   "devDependencies": {
-    "@types/chrome": "^0.1.40"
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
   }
 }
