@@ -1,25 +1,43 @@
 name: HydraLens CI
 
 on:
+  push:
+    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
 jobs:
-  hydration-check:
+  test-and-scan:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      
       - uses: pnpm/action-setup@v2
         with:
           version: 8
+          
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: pnpm install
-      - run: pnpm build
-      - name: Run HydraLens Scanner
+          
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Run Unit Tests
+        run: pnpm test
+        
+      - name: Build Packages
+        run: pnpm build
+        
+      - name: Start Local Test Server
         run: |
-          echo "Simulating CI/CD Scan for hydration mismatches..."
-          # In a real scenario, this runs your built @hydra-lens/cli against a local server
-          # e.g., pnpm --filter @hydra-lens/cli start http://localhost:3000
-          echo "Scan completed successfully. No critical mismatches found."
+          # Use npx serve to host the dummy HTML page
+          npx serve packages/cli/test-fixtures -p 3000 &
+          sleep 3 # Wait for server to boot
+          
+      - name: Run HydraLens CLI Scanner (Expect Failure due to Secrets)
+        run: |
+          # The CLI should exit 1 because of the AWS key in the fixture
+          node packages/cli/dist/index.js http://localhost:3000 || exit 0
+          echo "Expected CLI to fail with exit code 1 due to exposed AWS key, but it passed."
+          exit 1
