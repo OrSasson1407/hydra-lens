@@ -15,17 +15,17 @@ function renderResults(filter = "all") {
 
   filtered.forEach(m => {
     const el = document.createElement("div");
-    el.className = issue  + m.severity;
-    el.innerHTML = 
-      <strong>[\] \</strong><br/>
-      <em>Selector:</em> \<br/>
-      <em>Reason:</em> \<br/>
+    el.className = `issue ${m.severity}`;
+    el.innerHTML = `
+      <strong>[${m.severity.toUpperCase()}] ${m.componentName || 'Unknown'}</strong><br/>
+      <em>Selector:</em> ${m.selector}<br/>
+      <em>Reason:</em> ${m.severityReason}<br/>
       <div style="margin-top:5px; padding:5px; background:#111;">
-        <strong>Advice:</strong> \<br/>
-        <code>\</code>
+        <strong>Advice:</strong> ${m.advice}<br/>
+        <code>${m.fixSnippet}</code>
       </div>
-      <button class="ignore-btn" data-selector="\" style="margin-top:8px; background:#444;">Ignore Selector</button>
-    ;
+      <button class="ignore-btn" data-selector="${m.selector}" style="margin-top:8px; background:#444;">Ignore Selector</button>
+    `;
     container.appendChild(el);
   });
 

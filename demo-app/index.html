@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HydraLens Ultimate Demo</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #111; color: #eee; }
+        .box { padding: 20px; border: 1px solid #333; margin-bottom: 20px; border-radius: 8px; }
+        .theme-light { background: #eee; color: #111; }
+        .theme-dark { background: #222; color: #eee; }
+    </style>
+    <meta id="auth-meta" name="jwt-token" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ">
+</head>
+<body>
+    <h1>Hydration Chaos Demo</h1>
+    <p>Wait 500ms for client hydration to kick in...</p>
+
+    <div id="root" data-reactroot="" class="box">
+        
+        <h2 id="greeting">Welcome, Guest! (Server)</h2>
+        
+        <div id="aws-config" data-aws-key="AKIAIOSFODNN7EXAMPLE">AWS Config Loading...</div>
+        
+        <br/>
+        <button id="menu-btn" aria-expanded="false" role="button">Toggle Menu</button>
+        
+        <br/><br/>
+        <div id="theme-box" class="theme-light">Theme Container</div>
+        
+        <br/>
+        <time id="render-time" datetime="2026-01-01T12:00:00Z">Jan 1, 2026</time>
+
+        <br/><br/>
+        <img id="avatar" src="https://via.placeholder.com/50?v=1" alt="Avatar">
+    </div>
+
+    <script>
+        // Simulate Client-Side Hydration (executes after a 500ms delay)
+        setTimeout(() => {
+            console.log("Hydration started...");
+
+            // 1. Erase JWT (Security)
+            document.getElementById('auth-meta').setAttribute('content', 'cleared-by-client');
+
+            // 2. Change text (Critical)
+            document.getElementById('greeting').textContent = 'Welcome, Or Sasson! (Client)';
+
+            // 3. Obfuscate AWS Key (Security)
+            document.getElementById('aws-config').setAttribute('data-aws-key', 'hidden-on-client');
+
+            // 4. Change ARIA states (Critical)
+            document.getElementById('menu-btn').setAttribute('aria-expanded', 'true');
+            document.getElementById('menu-btn').setAttribute('role', 'menuitem');
+
+            // 5. Change Class (Warning)
+            document.getElementById('theme-box').className = 'theme-dark';
+
+            // 6. Update Timestamp (Info)
+            document.getElementById('render-time').setAttribute('datetime', new Date().toISOString());
+
+            // 7. Update Cache Buster (Info)
+            document.getElementById('avatar').src = 'https://via.placeholder.com/50?v=' + Date.now();
+            
+            console.log("Hydration complete. Mismatches generated!");
+        }, 500);
+    </script>
+</body>
+</html>
