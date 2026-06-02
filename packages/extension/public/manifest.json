@@ -1,8 +1,8 @@
-{
+﻿{
   "manifest_version": 3,
   "name": "HydraLens - Hydration Debugger",
-  "version": "0.4.0",
-  "description": "The ultimate tool to debug React, Vue, and Angular hydration mismatches in real-time.",
+  "version": "0.5.0",
+  "description": "Debug React, Vue, and Angular hydration mismatches in real-time with fix advice, security scanning, and CI/CD integration.",
   "icons": {
     "16": "icons/16.png",
     "48": "icons/48.png",
