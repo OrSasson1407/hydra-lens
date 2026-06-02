@@ -32,6 +32,7 @@ describe("getCssPath", () => {
 });
 
 describe("classifyAttributeMismatch", () => {
+<<<<<<< HEAD
   it("flags security leaks", () => {
     const res = classifyAttributeMismatch("data-token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ", "");
     expect(res.severity).toBe("security");
@@ -45,6 +46,17 @@ describe("classifyAttributeMismatch", () => {
   it("flags info for cache-busted src", () => {
     const res = classifyAttributeMismatch("src", "image.png?v=123", "image.png?v=456");
     expect(res.severity).toBe("info");
+=======
+  it("flags JWT as security", () => {
+    const r = classifyAttributeMismatch("data-token", "FAKE_JWT_TOKEN", "");
+    expect(r.severity).toBe("security");
+  });
+  it("flags AWS key as security", () => {
+    expect(classifyAttributeMismatch("data-k", "FAKE_AWS_KEY", "").severity).toBe("security");
+  });
+  it("flags Slack token as security", () => {
+    expect(classifyAttributeMismatch("data-t", "xoxb-TEST-TOKEN", "").severity).toBe("security");
+>>>>>>> 4667aec (fix test)
   });
 
   it("returns warning for standard attributes", () => {
