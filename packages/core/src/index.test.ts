@@ -6,7 +6,7 @@ import { classifyAttributeMismatch, getComponentName } from "./index";
 
 describe("Heuristics: classifyAttributeMismatch", () => {
   it("should detect exposed AWS keys as security severity", () => {
-    const result = classifyAttributeMismatch("data-key", "FAKE_AWS_KEY_12345", "");
+    const result = classifyAttributeMismatch("data-key", "AKIAFAKE1234567890XX", "");
     expect(result.severity).toBe("security");
     expect(result.reason).toContain("AWS Access Key");
   });
