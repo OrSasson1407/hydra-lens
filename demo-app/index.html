@@ -6,60 +6,89 @@
     <style>
         body { font-family: sans-serif; padding: 40px; background: #111; color: #eee; }
         .box { padding: 20px; border: 1px solid #333; margin-bottom: 20px; border-radius: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+        .item { padding: 15px; border: 1px solid #444; border-radius: 6px; font-size: 14px; word-break: break-all; }
         .theme-light { background: #eee; color: #111; }
         .theme-dark { background: #222; color: #eee; }
+        img { max-width: 50px; border-radius: 50%; }
+        button { padding: 5px 10px; cursor: pointer; border:none; background: #444; color: white; border-radius: 4px; }
     </style>
     <meta id="auth-meta" name="jwt-token" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ">
+    <meta id="gh-token" content="ghp_1234567890abcdefghijklmnopqrstuvwxyz12">
 </head>
 <body>
     <h1>Hydration Chaos Demo</h1>
     <p>Wait 500ms for client hydration to kick in...</p>
 
-    <div id="root" data-reactroot="" class="box">
-        
-        <h2 id="greeting">Welcome, Guest! (Server)</h2>
-        
-        <div id="aws-config" data-aws-key="AKIAIOSFODNN7EXAMPLE">AWS Config Loading...</div>
-        
-        <br/>
-        <button id="menu-btn" aria-expanded="false" role="button">Toggle Menu</button>
-        
-        <br/><br/>
-        <div id="theme-box" class="theme-light">Theme Container</div>
-        
-        <br/>
-        <time id="render-time" datetime="2026-01-01T12:00:00Z">Jan 1, 2026</time>
+    <div id="root" data-reactroot="" class="box grid">
+        <div class="item sec-item" id="sec-1" data-aws-key="FAKE_AWS_KEY_12345">AWS Config Loading...</div>
+        <div class="item sec-item" id="sec-2" data-stripe="fake_stripe_secret_12345">Stripe Config Loading...</div>
+        <div class="item sec-item" id="sec-3" data-slack="fake_slack_bot_token_12345">Slack Config Loading...</div>
+        <div class="item sec-item" id="sec-4" data-google="AIzaSyA_abcdefghijklmnopqrstuvwxyz123456">Google API Loading...</div>
+        <div class="item sec-item" id="sec-5" data-pk="-----BEGIN PRIVATE KEY-----">RSA Key Loading...</div>
 
-        <br/><br/>
-        <img id="avatar" src="https://via.placeholder.com/50?v=1" alt="Avatar">
+        <h3 class="item greeting" id="greeting-1">Welcome, Guest 1! (Server)</h3>
+        <h3 class="item greeting" id="greeting-2">Welcome, Guest 2! (Server)</h3>
+        <h3 class="item greeting" id="greeting-3">Welcome, Guest 3! (Server)</h3>
+        <h3 class="item greeting" id="greeting-4">Welcome, Guest 4! (Server)</h3>
+        <h3 class="item greeting" id="greeting-5">Welcome, Guest 5! (Server)</h3>
+
+        <button class="item menu-btn" id="menu-btn-1" aria-expanded="false" role="button">Toggle Menu 1</button>
+        <button class="item menu-btn" id="menu-btn-2" aria-expanded="false" role="button">Toggle Menu 2</button>
+        <button class="item menu-btn" id="menu-btn-3" aria-expanded="false" role="button">Toggle Menu 3</button>
+        <button class="item menu-btn" id="menu-btn-4" aria-expanded="false" role="button">Toggle Menu 4</button>
+        <button class="item menu-btn" id="menu-btn-5" aria-expanded="false" role="button">Toggle Menu 5</button>
+
+        <div class="item theme-box theme-light" id="theme-box-1">Theme Container 1</div>
+        <div class="item theme-box theme-light" id="theme-box-2">Theme Container 2</div>
+        <div class="item theme-box theme-light" id="theme-box-3">Theme Container 3</div>
+        <div class="item theme-box theme-light" id="theme-box-4">Theme Container 4</div>
+        <div class="item theme-box theme-light" id="theme-box-5">Theme Container 5</div>
+
+        <time class="item render-time" id="render-time-1" datetime="2026-01-01T12:00:00Z">Jan 1, 2026</time>
+        <time class="item render-time" id="render-time-2" datetime="2026-01-01T12:00:00Z">Jan 1, 2026</time>
+        <img class="item avatar" id="avatar-1" src="https://via.placeholder.com/50?v=1" alt="Avatar 1">
+        <img class="item avatar" id="avatar-2" src="https://via.placeholder.com/50?v=1" alt="Avatar 2">
+        <img class="item avatar" id="avatar-3" src="https://via.placeholder.com/50?v=1" alt="Avatar 3">
     </div>
 
     <script>
-        // Simulate Client-Side Hydration (executes after a 500ms delay)
         setTimeout(() => {
             console.log("Hydration started...");
 
-            // 1. Erase JWT (Security)
+            // 1. Erase Secrets (Security)
             document.getElementById('auth-meta').setAttribute('content', 'cleared-by-client');
+            document.getElementById('gh-token').setAttribute('content', 'cleared-by-client');
+            document.querySelectorAll('.sec-item').forEach(el => {
+                const attrName = el.attributes[2].name; 
+                el.setAttribute(attrName, 'hidden-on-client');
+                el.textContent = 'Config Loaded (Secret Hidden)';
+            });
 
             // 2. Change text (Critical)
-            document.getElementById('greeting').textContent = 'Welcome, Or Sasson! (Client)';
+            document.querySelectorAll('.greeting').forEach((el, i) => {
+                el.textContent = 'Welcome, Or Sasson ' + (i+1) + '! (Client)';
+            });
 
-            // 3. Obfuscate AWS Key (Security)
-            document.getElementById('aws-config').setAttribute('data-aws-key', 'hidden-on-client');
+            // 3. Change ARIA states (Critical)
+            document.querySelectorAll('.menu-btn').forEach(el => {
+                el.setAttribute('aria-expanded', 'true');
+                el.setAttribute('role', 'menuitem');
+            });
 
-            // 4. Change ARIA states (Critical)
-            document.getElementById('menu-btn').setAttribute('aria-expanded', 'true');
-            document.getElementById('menu-btn').setAttribute('role', 'menuitem');
+            // 4. Change Class (Warning)
+            document.querySelectorAll('.theme-box').forEach(el => {
+                el.className = 'item theme-box theme-dark';
+            });
 
-            // 5. Change Class (Warning)
-            document.getElementById('theme-box').className = 'theme-dark';
-
-            // 6. Update Timestamp (Info)
-            document.getElementById('render-time').setAttribute('datetime', new Date().toISOString());
-
-            // 7. Update Cache Buster (Info)
-            document.getElementById('avatar').src = 'https://via.placeholder.com/50?v=' + Date.now();
+            // 5. Update Timestamps & Cache Busters (Info)
+            document.querySelectorAll('.render-time').forEach(el => {
+                el.setAttribute('datetime', new Date().toISOString());
+                el.textContent = 'Just Now (Hydrated)';
+            });
+            document.querySelectorAll('.avatar').forEach((el, i) => {
+                el.src = 'https://via.placeholder.com/50?v=' + Date.now() + i;
+            });
             
             console.log("Hydration complete. Mismatches generated!");
         }, 500);

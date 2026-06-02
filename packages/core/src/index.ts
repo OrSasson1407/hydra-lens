@@ -129,10 +129,16 @@ function editDistance(a: string, b: string): number {
 }
 
 function similarityScore(a: string, b: string): number {
-  if (!a && !b) return 1;
-  const maxLen = Math.max(a.length, b.length);
-  if (maxLen === 0) return 1;
-  return 1 - editDistance(a, b) / maxLen;
+  if (!a && !b) return 1;
+  
+  // Prevent freezing on massive text nodes
+  if (a.length > 1500 || b.length > 1500) {
+    return a === b ? 1 : 0;
+  }
+  
+  const maxLen = Math.max(a.length, b.length);
+  if (maxLen === 0) return 1;
+  return 1 - editDistance(a, b) / maxLen;
 }
 
 // ── COMPONENT DETECTION ───────────────────────────────────────────────────────
@@ -178,7 +184,7 @@ export function classifyAttributeMismatch(
   return { severity: "warning", reason: `Attribute '${attrName}' differs between SSR and CSR` };
 }
 
-const IGNORED_TAGS = new Set(["script", "style", "noscript", "meta", "link"]);
+const IGNORED_TAGS = new Set(["script", "style", "noscript", "link"]);
 const IGNORED_SRC_PATTERNS = [/_next\/static/, /__webpack/, /chunk\.[a-z0-9]+\.js/];
 
 // ── A+B+C+D: detectMismatches with options ────────────────────────────────────
@@ -278,7 +284,7 @@ export function detectMismatches(
     }
   }
 
-  walk(serverDoc.body, clientDoc.body, 0);
+  walk(serverDoc.documentElement, clientDoc.documentElement, 0);
   return mismatches;
 }
 
@@ -294,7 +300,7 @@ export async function detectMismatchesAsync(
   const mismatches: Mismatch[] = [];
 
   const stack: { serverEl: Element; clientEl: Element | null; depth: number }[] = [
-    { serverEl: serverDoc.body, clientEl: clientDoc.body, depth: 0 }
+    { serverEl: serverDoc.documentElement, clientEl: clientDoc.documentElement, depth: 0 }
   ];
 
   let lastYield = performance.now();

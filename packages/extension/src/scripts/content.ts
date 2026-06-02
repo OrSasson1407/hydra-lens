@@ -101,8 +101,7 @@ async function runHydraLens(): Promise<void> {
     const serverHTML = await response.text();
     clearTimeout(timeoutId);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+    await new Promise((resolve) => setTimeout(resolve, 800));
     const allMismatches = await detectMismatchesAsync(serverHTML, document);
 
     chrome.storage.local.get(["ignoredSelectors"], (res) => {
