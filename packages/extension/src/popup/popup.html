@@ -1,82 +1,20 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-  <meta charset="UTF-8">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { width: 360px; background: #111827; color: #e5e7eb; font-family: system-ui, sans-serif; padding: 0 0 12px; }
-
-    .header { background: #1f2937; padding: 12px 16px; border-bottom: 1px solid #374151; display: flex; align-items: center; gap: 10px; }
-    .header h2 { font-size: 15px; font-weight: 700; color: #fff; flex: 1; }
-    .count-badge { background: #6b7280; color: #fff; font-size: 11px; font-weight: 800; padding: 3px 9px; border-radius: 999px; }
-
-    .actions { padding: 10px 12px; display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 1px solid #1f2937; }
-    button { border: none; border-radius: 4px; padding: 6px 11px; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
-    button:hover { opacity: 0.85; }
-    .btn-primary   { background: #3b82f6; color: #fff; }
-    .btn-secondary { background: #374151; color: #d1d5db; }
-    .btn-jira      { background: #0052cc; color: #fff; }
-    .btn-md        { background: #6366f1; color: #fff; }
-    .btn-json      { background: #059669; color: #fff; }
-
-    /* Auto-scan toggle row */
-    .toggle-row { padding: 8px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1f2937; background: #0f172a; }
-    .toggle-label { font-size: 11px; color: #9ca3af; flex: 1; }
-    .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; inset: 0; background: #374151; border-radius: 999px; transition: background 0.2s; cursor: pointer; }
-    .slider:before { content: ""; position: absolute; width: 12px; height: 12px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
-    input:checked + .slider { background: #3b82f6; }
-    input:checked + .slider:before { transform: translateX(16px); }
-
-    .results { padding: 10px 12px; min-height: 40px; }
-    .result-clean { text-align: center; color: #10b981; font-size: 13px; font-weight: 600; padding: 8px 0; }
-    .result-summary .chip { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; margin: 2px 3px 2px 0; }
-    .chip.security { background: rgba(239,68,68,0.2);  color: #f87171; }
-    .chip.critical  { background: rgba(249,115,22,0.2); color: #fb923c; }
-    .chip.warning   { background: rgba(234,179,8,0.2);  color: #facc15; }
-    .open-devtools  { font-size: 11px; color: #6b7280; margin-top: 6px; line-height: 1.5; }
-    .scanning { text-align: center; color: #9ca3af; font-size: 13px; padding: 8px 0; }
-
-    .section-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #4b5563; padding: 8px 12px 4px; }
-    .history-list { padding: 0 12px; }
-    .history-row { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid #1f2937; font-size: 11px; }
-    .history-time  { color: #6b7280; flex: 1; }
-    .history-count.clean { color: #10b981; font-weight: 600; }
-    .history-count.dirty { color: #f87171; font-weight: 600; }
-    .history-crit  { background: rgba(239,68,68,0.15); color: #f87171; padding: 1px 5px; border-radius: 3px; font-size: 10px; }
-    .history-badge { background: #374151; color: #9ca3af; padding: 1px 5px; border-radius: 3px; font-size: 10px; }
+    body { font-family: sans-serif; width: 250px; padding: 15px; }
+    .row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+    button { width: 100%; padding: 8px; background: #0078d4; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #005a9e; }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h2>HydraLens</h2>
-    <span class="count-badge" id="count-badge">0</span>
+  <h3>HydraLens</h3>
+  <div class="row">
+    <label>Auto-scan on navigation</label>
+    <input type="checkbox" id="autoScanToggle" checked />
   </div>
-
-  <div class="actions">
-    <button class="btn-primary"   id="btn-run">Scan Page</button>
-    <button class="btn-secondary" id="btn-clear">Clear</button>
-    <button class="btn-jira"      id="btn-jira">Export Jira</button>
-    <button class="btn-md"        id="btn-markdown">Export Markdown</button>
-    <button class="btn-json"      id="btn-json">Export JSON</button>
-  </div>
-
-  <div class="toggle-row">
-    <span class="toggle-label" id="auto-scan-label">Auto-scan: ON</span>
-    <label class="switch">
-      <input type="checkbox" id="auto-scan-toggle" checked>
-      <span class="slider"></span>
-    </label>
-  </div>
-
-  <div class="results" id="results">
-    <p class="scanning" style="color:#4b5563;">Ready — click Scan Page.</p>
-  </div>
-
-  <div class="section-title">Scan History</div>
-  <div class="history-list" id="history-list"></div>
-
-  <script type="module" src="./popup.ts"></script>
+  <button id="scanNowBtn">Scan Current Page</button>
+  <script type="module" src="popup.ts"></script>
 </body>
 </html>

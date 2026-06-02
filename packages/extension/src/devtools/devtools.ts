@@ -1,6 +1,6 @@
 chrome.devtools.panels.create(
   "HydraLens",
-  "", 
-  "src/devtools/panel.html", 
-  (panel) => { console.log("HydraLens Panel Initialized"); }
+  "../icons/16.png",
+  "panel.html",
+  (panel) => { console.log("HydraLens panel created."); }
 );

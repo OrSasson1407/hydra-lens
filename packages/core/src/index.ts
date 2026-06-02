@@ -281,3 +281,70 @@ export function detectMismatches(
   walk(serverDoc.body, clientDoc.body, 0);
   return mismatches;
 }
+
+// ── ASYNC YIELDING DETECTOR ───────────────────────────────────────────────────
+export async function detectMismatchesAsync(
+  serverHTML: string,
+  clientDoc: Document,
+  options: DetectOptions = {}
+): Promise<Mismatch[]> {
+  const { maxDepth = Infinity, similarityThreshold = 0.6, securityOnly = false } = options;
+  const parser = new DOMParser();
+  const serverDoc = parser.parseFromString(serverHTML, "text/html");
+  const mismatches: Mismatch[] = [];
+
+  const stack: { serverEl: Element; clientEl: Element | null; depth: number }[] = [
+    { serverEl: serverDoc.body, clientEl: clientDoc.body, depth: 0 }
+  ];
+
+  let lastYield = performance.now();
+
+  while (stack.length > 0) {
+    if (performance.now() - lastYield > 15) {
+      await new Promise(r => setTimeout(r, 0)); // Yield main thread
+      lastYield = performance.now();
+    }
+
+    const current = stack.pop();
+    if (!current) continue;
+    const { serverEl, clientEl, depth } = current;
+
+    if (!clientEl || depth > maxDepth || IGNORED_TAGS.has(serverEl.tagName.toLowerCase())) continue;
+
+    const componentName = getComponentName(clientEl);
+
+    // Text Mismatch
+    if (!securityOnly) {
+      const sText = Array.from(serverEl.childNodes).filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent?.trim() ?? "").join("").trim();
+      const cText = Array.from(clientEl.childNodes).filter(n => n.nodeType === Node.TEXT_NODE).map(n => n.textContent?.trim() ?? "").join("").trim();
+      if (sText && cText && sText !== cText) {
+        const score = similarityScore(sText, cText);
+        if (score < similarityThreshold) {
+          const fix = getFix(componentName, "Text content mismatch");
+          mismatches.push({ selector: getCssPath(clientEl), serverText: sText, clientText: cText, severity: "critical", severityReason: "Text content mismatch", componentName, advice: fix.advice, fixSnippet: fix.snippet, similarityScore: Math.round(score * 100) / 100 });
+        }
+      }
+    }
+
+    // Attribute Mismatch
+    for (const attr of Array.from(serverEl.attributes)) {
+      const serverVal = attr.value;
+      const clientVal = clientEl.getAttribute(attr.name);
+      if (clientVal === null || serverVal === clientVal || isFrameworkInternalAttr(attr.name)) continue;
+      if (attr.name === "src" && IGNORED_SRC_PATTERNS.some(p => p.test(serverVal))) continue;
+
+      const { severity, reason } = classifyAttributeMismatch(attr.name, serverVal, clientVal);
+      if (securityOnly && severity !== "security") continue;
+      const fix = getFix(componentName, reason);
+      mismatches.push({ selector: getCssPath(clientEl), serverText: "", clientText: "", serverAttrValue: serverVal, attributeName: attr.name, severity, severityReason: reason, componentName, advice: fix.advice, fixSnippet: fix.snippet });
+    }
+
+    // Queue children (reverse order for correct left-to-right DFS)
+    const serverChildren = Array.from(serverEl.children);
+    const clientChildren = Array.from(clientEl.children);
+    for (let i = serverChildren.length - 1; i >= 0; i--) {
+      stack.push({ serverEl: serverChildren[i], clientEl: clientChildren[i] ?? null, depth: depth + 1 });
+    }
+  }
+  return mismatches;
+}
