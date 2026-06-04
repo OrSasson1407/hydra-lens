@@ -1,7 +1,7 @@
 name: Security Scan
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: "0 0 * * 0"
   push:
     branches: [main]
 
@@ -16,22 +16,22 @@ jobs:
       - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
+
       - name: PNPM Audit
         run: pnpm audit --audit-level=high --prod
-        
+
       - name: HydraLens Security Scan
         run: npx hydra-lens --security-only http://localhost:3000
-        
+
       - name: Playwright XSS Tests
         run: pnpm run test:e2e:xss
-        
+
       - name: Upload SARIF Report
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: report.sarif
-          
+
       - name: Slack Notification
         if: failure()
         uses: slackapi/slack-github-action@v1.23.0

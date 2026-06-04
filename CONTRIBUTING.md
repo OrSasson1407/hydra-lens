@@ -6,12 +6,12 @@ Thank you for your interest in contributing!
 
 ## Prerequisites
 
-| Tool | Minimum version |
-|------|----------------|
-| Node.js | 18 |
-| pnpm | 8 |
-| Chromium / Chrome | Latest stable |
-| Playwright | Installed via `pnpm install` |
+| Tool              | Minimum version              |
+| ----------------- | ---------------------------- |
+| Node.js           | 18                           |
+| pnpm              | 8                            |
+| Chromium / Chrome | Latest stable                |
+| Playwright        | Installed via `pnpm install` |
 
 ---
 
@@ -26,7 +26,8 @@ pnpm build:extension
 ```
 
 Load the extension:  
-Chrome → `chrome://extensions` → Developer mode → **Load unpacked** → `packages/extension/dist`
+Chrome → `chrome://extensions` → Developer mode → **Load unpacked** →
+`packages/extension/dist`
 
 ---
 
@@ -52,7 +53,8 @@ pnpm test:e2e:extension
 pnpm test:all
 ```
 
-See [docs/TESTING.md](docs/TESTING.md) for the full guide including coverage and mocking patterns.
+See [docs/TESTING.md](docs/TESTING.md) for the full guide including coverage and
+mocking patterns.
 
 ---
 
@@ -91,10 +93,14 @@ Before opening a pull request, confirm:
 
 ## Adding a New Framework
 
-1. **Detect** — add a fingerprint branch in `getComponentName()` in `packages/core/src/index.ts`
-2. **Advise** — add a `<FrameworkName>Component` entry in `ADVICE_DATABASE` with `text-mismatch` and `attribute-mismatch` keys
-3. **Test** — add a unit test in `packages/core/src/__tests__/unit/framework-detection.unit.test.ts`
-4. **Integration test** — add a fixture HTML file and an integration test in `packages/core/src/__tests__/integration/`
+1. **Detect** — add a fingerprint branch in `getComponentName()` in
+   `packages/core/src/index.ts`
+2. **Advise** — add a `<FrameworkName>Component` entry in `ADVICE_DATABASE` with
+   `text-mismatch` and `attribute-mismatch` keys
+3. **Test** — add a unit test in
+   `packages/core/src/__tests__/unit/framework-detection.unit.test.ts`
+4. **Integration test** — add a fixture HTML file and an integration test in
+   `packages/core/src/__tests__/integration/`
 5. Update `docs/HEURISTICS.md` → Framework Detection section
 6. Update `README.md` → Supported Frameworks table
 
@@ -102,9 +108,11 @@ Before opening a pull request, confirm:
 
 ## Adding a New Secret Pattern
 
-1. Add `{ pattern: /your-regex/, label: "Human-readable label" }` to `SECRET_PATTERNS` in `packages/core/src/index.ts`
+1. Add `{ pattern: /your-regex/, label: "Human-readable label" }` to
+   `SECRET_PATTERNS` in `packages/core/src/index.ts`
 2. Add a unit test in `packages/core/src/__tests__/unit/classify.unit.test.ts`
-3. Add a security test in `packages/core/src/__tests__/security/payload-obfuscation.sec.test.ts`
+3. Add a security test in
+   `packages/core/src/__tests__/security/payload-obfuscation.sec.test.ts`
 4. Document the pattern in `docs/HEURISTICS.md` → Secret Patterns table
 
 ---

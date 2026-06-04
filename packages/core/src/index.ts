@@ -24,8 +24,10 @@ export interface DetectOptions {
 const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: string }>> = {
   ReactComponent: {
     "text-mismatch": {
-      advice: "State mismatch detected. Use 'useEffect' to set initial client state only AFTER mounting.",
-      snippet: "const [isClient, setIsClient] = useState(false);\nuseEffect(() => setIsClient(true), []);\nreturn <div>{isClient ? clientValue : serverValue}</div>;",
+      advice:
+        "State mismatch detected. Use 'useEffect' to set initial client state only AFTER mounting.",
+      snippet:
+        "const [isClient, setIsClient] = useState(false);\nuseEffect(() => setIsClient(true), []);\nreturn <div>{isClient ? clientValue : serverValue}</div>;",
     },
     "attribute-mismatch": {
       advice: "Use 'suppressHydrationWarning' if this dynamic attribute is intentional.",
@@ -34,8 +36,10 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
   },
   VueComponent: {
     "text-mismatch": {
-      advice: "Avoid accessing browser-only APIs (window/localStorage) during SSR. Use onMounted() for client-only logic.",
-      snippet: "const value = ref('');\nonMounted(() => { value.value = localStorage.getItem('key') ?? ''; });",
+      advice:
+        "Avoid accessing browser-only APIs (window/localStorage) during SSR. Use onMounted() for client-only logic.",
+      snippet:
+        "const value = ref('');\nonMounted(() => { value.value = localStorage.getItem('key') ?? ''; });",
     },
     "attribute-mismatch": {
       advice: "Use v-if with a client-only flag to prevent SSR/CSR attribute mismatches.",
@@ -45,7 +49,8 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
   SvelteComponent: {
     "text-mismatch": {
       advice: "Use onMount() to defer browser-only logic and avoid SSR mismatches.",
-      snippet: "import { onMount } from 'svelte';\nlet value = '';\nonMount(() => { value = localStorage.getItem('key') ?? ''; });",
+      snippet:
+        "import { onMount } from 'svelte';\nlet value = '';\nonMount(() => { value = localStorage.getItem('key') ?? ''; });",
     },
     "attribute-mismatch": {
       advice: "Use a mounted flag to suppress SSR attribute differences.",
@@ -55,7 +60,8 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
   SolidComponent: {
     "text-mismatch": {
       advice: "Use createEffect or isServer to guard browser-only logic in SolidJS.",
-      snippet: "import { isServer } from 'solid-js/web';\nconst value = isServer ? '' : localStorage.getItem('key') ?? '';",
+      snippet:
+        "import { isServer } from 'solid-js/web';\nconst value = isServer ? '' : localStorage.getItem('key') ?? '';",
     },
     "attribute-mismatch": {
       advice: "Wrap dynamic attributes in createEffect to run only on the client.",
@@ -65,7 +71,8 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
   AngularComponent: {
     "text-mismatch": {
       advice: "Use isPlatformBrowser() to guard browser-only code and avoid SSR mismatches.",
-      snippet: "constructor(@Inject(PLATFORM_ID) private platformId: Object) {}\nngOnInit() { if (isPlatformBrowser(this.platformId)) { /* client only */ } }",
+      snippet:
+        "constructor(@Inject(PLATFORM_ID) private platformId: Object) {}\nngOnInit() { if (isPlatformBrowser(this.platformId)) { /* client only */ } }",
     },
     "attribute-mismatch": {
       advice: "Move dynamic bindings into ngAfterViewInit or use TransferState to sync SSR data.",
@@ -74,21 +81,32 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
   },
   Unknown: {
     "text-mismatch": {
-      advice: "Text content differs between server and client. Check for dates, locales, or random values rendered at build time.",
+      advice:
+        "Text content differs between server and client. Check for dates, locales, or random values rendered at build time.",
       snippet: "// Ensure dynamic values are deferred to client-side or made deterministic.",
     },
     "attribute-mismatch": {
-      advice: "An attribute value differs between SSR and CSR. Common causes: timestamps, nonces, or session-based values.",
-      snippet: "// Review initialization logic and defer non-deterministic attributes to client mount.",
+      advice:
+        "An attribute value differs between SSR and CSR. Common causes: timestamps, nonces, or session-based values.",
+      snippet:
+        "// Review initialization logic and defer non-deterministic attributes to client mount.",
     },
   },
 };
 
-export function getFix(componentName: string | null, reason: string): { advice: string; snippet: string } {
+export function getFix(
+  componentName: string | null,
+  reason: string
+): { advice: string; snippet: string } {
   const key = componentName ?? "Unknown";
   const db = ADVICE_DATABASE[key] ?? ADVICE_DATABASE["Unknown"];
   const type = reason.toLowerCase().includes("text") ? "text-mismatch" : "attribute-mismatch";
-  return db[type] ?? { advice: "Review your initialization logic.", snippet: "// No specific snippet available." };
+  return (
+    db[type] ?? {
+      advice: "Review your initialization logic.",
+      snippet: "// No specific snippet available.",
+    }
+  );
 }
 
 // ── SECRET PATTERNS ───────────────────────────────────────────────────────────
@@ -134,15 +152,17 @@ function isFrameworkInternalAttr(name: string): boolean {
 
 // ── FUZZY SIMILARITY (Levenshtein-based) ─────────────────────────────────────
 function editDistance(a: string, b: string): number {
-  const m = a.length, n = b.length;
+  const m = a.length,
+    n = b.length;
   const dp: number[][] = Array.from({ length: m + 1 }, (_, i) =>
     Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
   );
   for (let i = 1; i <= m; i++)
     for (let j = 1; j <= n; j++)
-      dp[i][j] = a[i - 1] === b[j - 1]
-        ? dp[i - 1][j - 1]
-        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
   return dp[m][n];
 }
 
@@ -158,9 +178,11 @@ function similarityScore(a: string, b: string): number {
 export function getComponentName(el: Element): string | null {
   if (el.hasAttribute("data-reactroot") || el.closest("[data-reactroot]")) return "ReactComponent";
   const keys = Object.keys(el as any);
-  if (keys.some((k) => k.startsWith("__reactFiber") || k.startsWith("__reactInternalInstance"))) return "ReactComponent";
+  if (keys.some((k) => k.startsWith("__reactFiber") || k.startsWith("__reactInternalInstance")))
+    return "ReactComponent";
   if ((el as any).__vue_app__ || keys.some((k) => k.startsWith("__vue"))) return "VueComponent";
-  if ((el as any).__ngContext__ || el.hasAttribute("ng-version") || el.closest("[ng-version]")) return "AngularComponent";
+  if ((el as any).__ngContext__ || el.hasAttribute("ng-version") || el.closest("[ng-version]"))
+    return "AngularComponent";
   // Svelte: components leave a __svelte property on the DOM node
   if (keys.some((k) => k.startsWith("__svelte"))) return "SvelteComponent";
   // SolidJS: leaves _$owner on reactive nodes
@@ -189,14 +211,23 @@ export function classifyAttributeMismatch(
     }
   }
   if (attrName.startsWith("aria-") || attrName === "role") {
-    return { severity: "critical", reason: "Accessibility attribute mismatch may break screen readers" };
+    return {
+      severity: "critical",
+      reason: "Accessibility attribute mismatch may break screen readers",
+    };
   }
   if (attrName === "src" || attrName === "href") {
-    const isCacheBust = /[?&](v|version|hash|t|ts|cb)=/.test(serverVal) || /[?&](v|version|hash|t|ts|cb)=/.test(clientVal);
-    if (isCacheBust) return { severity: "info", reason: "Cache-busting parameter differs (expected)" };
+    const isCacheBust =
+      /[?&](v|version|hash|t|ts|cb)=/.test(serverVal) ||
+      /[?&](v|version|hash|t|ts|cb)=/.test(clientVal);
+    if (isCacheBust)
+      return { severity: "info", reason: "Cache-busting parameter differs (expected)" };
   }
   if (isTimestampValue(serverVal) || isTimestampValue(clientVal)) {
-    return { severity: "info", reason: "Timestamp or date value differs between SSR and CSR (expected)" };
+    return {
+      severity: "info",
+      reason: "Timestamp or date value differs between SSR and CSR (expected)",
+    };
   }
   return { severity: "warning", reason: `Attribute '${attrName}' differs between SSR and CSR` };
 }
@@ -214,7 +245,8 @@ function processNode(
   options: Required<DetectOptions>,
   push: (m: Mismatch) => void
 ): Array<{ serverEl: Element; clientEl: Element | null; depth: number }> {
-  if (!clientEl || depth > options.maxDepth || IGNORED_TAGS.has(serverEl.tagName.toLowerCase())) return [];
+  if (!clientEl || depth > options.maxDepth || IGNORED_TAGS.has(serverEl.tagName.toLowerCase()))
+    return [];
 
   const componentName = getComponentName(clientEl);
 
@@ -279,7 +311,11 @@ function processNode(
   // Return children in forward order (consistent left-to-right DFS for both sync & async)
   const serverChildren = Array.from(serverEl.children);
   const clientChildren = Array.from(clientEl.children);
-  return serverChildren.map((sc, i) => ({ serverEl: sc, clientEl: clientChildren[i] ?? null, depth: depth + 1 }));
+  return serverChildren.map((sc, i) => ({
+    serverEl: sc,
+    clientEl: clientChildren[i] ?? null,
+    depth: depth + 1,
+  }));
 }
 
 // ── SYNC DETECTOR ─────────────────────────────────────────────────────────────

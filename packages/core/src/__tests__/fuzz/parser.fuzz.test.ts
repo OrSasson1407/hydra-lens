@@ -1,8 +1,8 @@
-﻿import { describe, it, expect } from 'vitest';
-import fc from 'fast-check';
+﻿import { describe, it, expect } from "vitest";
+import fc from "fast-check";
 
-describe('Fuzzing: DOM Parser & Similarity Engine', () => {
-  it('never crashes on highly nested, randomized malformed HTML', () => {
+describe("Fuzzing: DOM Parser & Similarity Engine", () => {
+  it("never crashes on highly nested, randomized malformed HTML", () => {
     fc.assert(
       fc.property(fc.string(), (randomString) => {
         // TODO: Pass randomString into HTML parser
@@ -12,7 +12,7 @@ describe('Fuzzing: DOM Parser & Similarity Engine', () => {
     );
   });
 
-  it('similarity engine never throws NaN or exceptions for bizarre unicode/emoji strings', () => {
+  it("similarity engine never throws NaN or exceptions for bizarre unicode/emoji strings", () => {
     fc.assert(
       fc.property(fc.unicodeString(), fc.unicodeString(), (str1, str2) => {
         // TODO: calculateSimilarity(str1, str2)

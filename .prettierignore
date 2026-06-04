@@ -1,0 +1,9 @@
+# Ignore build artifacts and generated files
+dist/
+node_modules/
+**/*.d.ts
+**/*.js
+
+# Explicitly allow specific config files if needed
+!eslint.config.mjs
+!stryker.conf.mjs

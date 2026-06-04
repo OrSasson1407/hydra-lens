@@ -11,11 +11,11 @@ export default defineConfig({
         devtools: resolve(__dirname, "src/devtools/devtools.html"),
         panel: resolve(__dirname, "src/devtools/panel.html"),
         background: resolve(__dirname, "src/scripts/background.ts"),
-        content: resolve(__dirname, "src/scripts/content.ts")
+        content: resolve(__dirname, "src/scripts/content.ts"),
       },
       output: {
-        entryFileNames: "[name].js"
-      }
-    }
-  }
+        entryFileNames: "[name].js",
+      },
+    },
+  },
 });

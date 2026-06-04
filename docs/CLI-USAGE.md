@@ -6,14 +6,14 @@ HydraLens ships a headless CLI powered by Playwright for CI/CD pipelines.
 
 ## Flags Reference
 
-| Flag | Type | Default | Description |
-|------|------|---------|-------------|
-| _(positional)_ | `string[]` | `http://localhost:3000` | One or more URLs to scan |
-| `--sitemap <url>` | string | — | Fetch a sitemap XML and scan all `<loc>` URLs |
-| `--concurrency <n>` | number | `4` | Max parallel pages (see tuning advice below) |
-| `--threshold <level>` | `security\|critical\|warning\|info` | `critical` | Lowest severity that triggers exit code 1 |
-| `--security-only` | flag | off | Only report secret-pattern hits; ignore text/attribute mismatches |
-| `--output <file>` | string | — | Write full JSON report to this path |
+| Flag                  | Type                                | Default                 | Description                                                       |
+| --------------------- | ----------------------------------- | ----------------------- | ----------------------------------------------------------------- |
+| _(positional)_        | `string[]`                          | `http://localhost:3000` | One or more URLs to scan                                          |
+| `--sitemap <url>`     | string                              | —                       | Fetch a sitemap XML and scan all `<loc>` URLs                     |
+| `--concurrency <n>`   | number                              | `4`                     | Max parallel pages (see tuning advice below)                      |
+| `--threshold <level>` | `security\|critical\|warning\|info` | `critical`              | Lowest severity that triggers exit code 1                         |
+| `--security-only`     | flag                                | off                     | Only report secret-pattern hits; ignore text/attribute mismatches |
+| `--output <file>`     | string                              | —                       | Write full JSON report to this path                               |
 
 ---
 
@@ -55,11 +55,13 @@ node packages/cli/dist/index.js https://example.com --security-only --output rep
 
 ## Concurrency Tuning
 
-`--concurrency` controls how many Playwright pages run in parallel inside a single Chromium instance.
+`--concurrency` controls how many Playwright pages run in parallel inside a
+single Chromium instance.
 
 - **Local dev machine**: `4` (default) works well
 - **CI runner (2 vCPU)**: `2`–`4`
-- **Large sitemap on a 16-core machine**: up to `16`, but watch memory — each page uses ~50 MB
+- **Large sitemap on a 16-core machine**: up to `16`, but watch memory — each
+  page uses ~50 MB
 
 ---
 
@@ -70,21 +72,21 @@ node packages/cli/dist/index.js https://example.com --security-only --output rep
   {
     "url": "https://example.com",
     "durationMs": 1234,
-    "error": null,               // string if the page failed to load
+    "error": null, // string if the page failed to load
     "mismatches": [
       {
         "selector": "#root > main > h1",
         "serverText": "Hello Server",
         "clientText": "Hello Client",
-        "severity": "critical",  // security | critical | warning | info
+        "severity": "critical", // security | critical | warning | info
         "severityReason": "Text content mismatch",
         "componentName": "ReactComponent",
         "advice": "Use useEffect to set initial client state only after mounting.",
         "fixSnippet": "const [isClient, setIsClient] = useState(false);\n...",
-        "similarityScore": 0.42
-      }
-    ]
-  }
+        "similarityScore": 0.42,
+      },
+    ],
+  },
 ]
 ```
 
@@ -92,16 +94,20 @@ node packages/cli/dist/index.js https://example.com --security-only --output rep
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | No issues at or above `--threshold` |
-| `1` | One or more blocking issues found |
-| `2` | Fatal error (browser failed to launch, build missing, etc.) |
+| Code | Meaning                                                     |
+| ---- | ----------------------------------------------------------- |
+| `0`  | No issues at or above `--threshold`                         |
+| `1`  | One or more blocking issues found                           |
+| `2`  | Fatal error (browser failed to launch, build missing, etc.) |
 
 ---
 
 ## Authenticated Pages
 
-The CLI fetches server HTML using an unauthenticated `page.request.get()` call. If the page redirects to a login screen, the server HTML will be the login page, not the actual content.
+The CLI fetches server HTML using an unauthenticated `page.request.get()` call.
+If the page redirects to a login screen, the server HTML will be the login page,
+not the actual content.
 
-**Workaround**: Use `--output` to capture the JSON report and post-filter URLs that returned login-page signatures. Full cookie injection support is planned for a future release.
+**Workaround**: Use `--output` to capture the JSON report and post-filter URLs
+that returned login-page signatures. Full cookie injection support is planned
+for a future release.

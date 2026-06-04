@@ -1,6 +1,7 @@
 ﻿# @hydra-lens/core
 
-Pure detection logic for [HydraLens](https://github.com/your-org/hydra-lens) — no DOM or browser dependencies.
+Pure detection logic for [HydraLens](https://github.com/your-org/hydra-lens) —
+no DOM or browser dependencies.
 
 ## Install
 
@@ -23,9 +24,9 @@ const mismatches = detectMismatches(serverHTML, document);
 
 ```ts
 const mismatches = detectMismatches(serverHTML, document, {
-  maxDepth: 10,                // default: Infinity
-  similarityThreshold: 0.8,   // default: 0.6 (lower = fewer reports)
-  securityOnly: false,        // default: false
+  maxDepth: 10, // default: Infinity
+  similarityThreshold: 0.8, // default: 0.6 (lower = fewer reports)
+  securityOnly: false, // default: false
 });
 ```
 
@@ -40,15 +41,17 @@ const mismatches = await detectMismatchesAsync(serverHTML, document);
 ## API
 
 ### `detectMismatches(serverHTML, clientDoc, options?): Mismatch[]`
+
 ### `detectMismatchesAsync(serverHTML, clientDoc, options?): Promise<Mismatch[]>`
 
-Both return the same results. Use the async variant when scanning large pages in a content script to avoid blocking the main thread.
+Both return the same results. Use the async variant when scanning large pages in
+a content script to avoid blocking the main thread.
 
 ### `Mismatch`
 
 ```ts
 interface Mismatch {
-  selector: string;           // CSS path to the mismatched element
+  selector: string; // CSS path to the mismatched element
   serverText: string;
   clientText: string;
   serverAttrValue?: string;
@@ -58,13 +61,14 @@ interface Mismatch {
   componentName: string | null; // "ReactComponent" | "VueComponent" | etc.
   advice: string;
   fixSnippet: string;
-  similarityScore?: number;   // 0–1, present for text mismatches
+  similarityScore?: number; // 0–1, present for text mismatches
 }
 ```
 
 ### `getFix(componentName, reason): { advice, snippet }`
 
-Look up actionable advice and a copy-ready code snippet for a given framework and mismatch reason.
+Look up actionable advice and a copy-ready code snippet for a given framework
+and mismatch reason.
 
 ### `classifyAttributeMismatch(attrName, serverVal, clientVal): { severity, reason }`
 

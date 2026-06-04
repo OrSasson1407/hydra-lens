@@ -1,31 +1,63 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <style>
-    body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 10px; }
-    .toolbar { padding-bottom: 10px; border-bottom: 1px solid #333; margin-bottom: 10px; }
-    button { background: #0e639c; color: white; border: none; padding: 5px 10px; cursor: pointer; }
-    button:hover { background: #1177bb; }
-    #results { display: flex; flex-direction: column; gap: 8px; }
-    .issue { background: #252526; padding: 10px; border-left: 3px solid #d4d4d4; }
-    .issue.security { border-color: #ef4444; }
-    .issue.critical { border-color: #f97316; }
-    .issue.warning { border-color: #eab308; }
-  </style>
-</head>
-<body>
-  <div class="toolbar">
-    <button id="refreshBtn">Rescan Page</button>
-    <button id="clearIgnoreBtn">Clear Ignore List</button>
-    <span style="margin-left:10px;">Severity: 
-      <select id="severityFilter">
-        <option value="all">All</option>
-        <option value="security">Security Only</option>
-        <option value="critical">Critical & Above</option>
-      </select>
-    </span>
-  </div>
-  <div id="results">Waiting for scan...</div>
-  <script type="module" src="panel.ts"></script>
-</body>
+  <head>
+    <style>
+      body {
+        font-family: monospace;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        padding: 10px;
+      }
+      .toolbar {
+        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
+        margin-bottom: 10px;
+      }
+      button {
+        background: #0e639c;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #1177bb;
+      }
+      #results {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .issue {
+        background: #252526;
+        padding: 10px;
+        border-left: 3px solid #d4d4d4;
+      }
+      .issue.security {
+        border-color: #ef4444;
+      }
+      .issue.critical {
+        border-color: #f97316;
+      }
+      .issue.warning {
+        border-color: #eab308;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <button id="refreshBtn">Rescan Page</button>
+      <button id="clearIgnoreBtn">Clear Ignore List</button>
+      <span style="margin-left: 10px"
+        >Severity:
+        <select id="severityFilter">
+          <option value="all">All</option>
+          <option value="security">Security Only</option>
+          <option value="critical">Critical & Above</option>
+        </select>
+      </span>
+    </div>
+    <div id="results">Waiting for scan...</div>
+    <script type="module" src="panel.ts"></script>
+  </body>
 </html>

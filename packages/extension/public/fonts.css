@@ -3,22 +3,22 @@
    Files are copied into public/fonts/ and shipped with the extension. */
 
 @font-face {
-  font-family: 'HydraLensMono';
+  font-family: "HydraLensMono";
   font-weight: 100 900;
   font-style: normal;
-  src: url('../fonts/UbuntuSansMono.ttf') format('truetype');
+  src: url("../fonts/UbuntuSansMono.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: 'HydraLensMono';
+  font-family: "HydraLensMono";
   font-weight: 100 900;
   font-style: italic;
-  src: url('../fonts/UbuntuSansMono-Italic.ttf') format('truetype');
+  src: url("../fonts/UbuntuSansMono-Italic.ttf") format("truetype");
 }
 
 @font-face {
-  font-family: 'HydraLensSans';
+  font-family: "HydraLensSans";
   font-weight: 100 900;
   font-style: normal;
-  src: url('../fonts/UbuntuSans.ttf') format('truetype');
+  src: url("../fonts/UbuntuSans.ttf") format("truetype");
 }

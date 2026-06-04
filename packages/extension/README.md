@@ -34,9 +34,12 @@ packages/extension/
 
 ## Key Behaviours
 
-- Results stored in `chrome.storage.session` — survive DevTools close/reopen, cleared on tab close
+- Results stored in `chrome.storage.session` — survive DevTools close/reopen,
+  cleared on tab close
 - Overlays rendered inside a closed Shadow Root — immune to page styles
-- Auto-scan fires on both full loads and SPA navigations via History API patching
+- Auto-scan fires on both full loads and SPA navigations via History API
+  patching
 - Export formats: Jira wiki markup, GitHub Markdown (table + snippets), raw JSON
 
-See [docs/EXTENSION-USAGE.md](../../docs/EXTENSION-USAGE.md) for the full user guide.
+See [docs/EXTENSION-USAGE.md](../../docs/EXTENSION-USAGE.md) for the full user
+guide.

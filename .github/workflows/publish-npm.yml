@@ -7,17 +7,17 @@ name: Publish to npm
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
 
 permissions:
   contents: read
-  id-token: write   # Required for npm provenance
+  id-token: write # Required for npm provenance
 
 jobs:
   publish:
     name: Publish @hydra-lens/core
     runs-on: ubuntu-latest
-    environment: npm-publish   # Requires manual approval gate in GitHub Environments
+    environment: npm-publish # Requires manual approval gate in GitHub Environments
 
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +29,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
+          registry-url: "https://registry.npmjs.org"
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

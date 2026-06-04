@@ -1,6 +1,6 @@
-﻿import { detectMismatchesAsync, type Mismatch, type Severity } from "@hydra-lens/core";
+import { detectMismatchesAsync, type Mismatch, type Severity } from "@hydra-lens/core";
 
-// ── SHADOW DOM SETUP ──────────────────────────────────────────────────────────
+// ?? SHADOW DOM SETUP ??????????????????????????????????????????????????????????
 const HOST_ID = "hydra-lens-host";
 let shadowRoot: ShadowRoot | null = null;
 
@@ -24,7 +24,7 @@ function getShadowRoot(): ShadowRoot {
   return shadowRoot;
 }
 
-// ── OVERLAY STATE ─────────────────────────────────────────────────────────────
+// ?? OVERLAY STATE ?????????????????????????????????????????????????????????????
 const overlayElements: HTMLElement[] = [];
 const resizeObservers: ResizeObserver[] = [];
 // FIX: keep references to scroll/resize handlers so we can remove them on clear
@@ -55,10 +55,10 @@ function clearOverlays(): void {
 }
 
 const SEVERITY_STYLE: Record<Severity, { border: string; bg: string; label: string }> = {
-  security: { border: "#ef4444", bg: "rgba(239,68,68,0.20)",  label: "SECURITY" },
+  security: { border: "#ef4444", bg: "rgba(239,68,68,0.20)", label: "SECURITY" },
   critical: { border: "#f97316", bg: "rgba(249,115,22,0.15)", label: "CRITICAL" },
-  warning:  { border: "#eab308", bg: "rgba(234,179,8,0.15)",  label: "WARNING"  },
-  info:     { border: "#3b82f6", bg: "rgba(59,130,246,0.15)", label: "INFO"     },
+  warning: { border: "#eab308", bg: "rgba(234,179,8,0.15)", label: "WARNING" },
+  info: { border: "#3b82f6", bg: "rgba(59,130,246,0.15)", label: "INFO" },
 };
 
 function drawOverlay(element: HTMLElement, mismatch: Mismatch): void {
@@ -86,9 +86,9 @@ function drawOverlay(element: HTMLElement, mismatch: Mismatch): void {
 
   function reposition(): void {
     const rect = element.getBoundingClientRect();
-    overlay.style.top    = `${rect.top    - 2}px`;
-    overlay.style.left   = `${rect.left   - 2}px`;
-    overlay.style.width  = `${rect.width  + 4}px`;
+    overlay.style.top = `${rect.top - 2}px`;
+    overlay.style.left = `${rect.left - 2}px`;
+    overlay.style.width = `${rect.width + 4}px`;
     overlay.style.height = `${rect.height + 4}px`;
   }
   reposition();
@@ -110,11 +110,11 @@ async function runHydraLens(): Promise<void> {
     return;
   }
 
-  clearOverlays(); // synchronous — if this throws, isScanning stays false (correct)
+  clearOverlays(); // synchronous � if this throws, isScanning stays false (correct)
   isScanning = true;
 
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 6000);
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
 
   try {
     const response = await fetch(window.location.href, {
@@ -129,13 +129,15 @@ async function runHydraLens(): Promise<void> {
     const allMismatches = await detectMismatchesAsync(serverHTML, document);
 
     chrome.storage.local.get(["ignoredSelectors"], (res) => {
-      const ignored: string[] = res.ignoredSelectors ?? [];
-      const activeMismatches  = allMismatches.filter((m) => !ignored.includes(m.selector));
+      const ignored: string[] = (res.ignoredSelectors as string[]) ?? [];
+      const activeMismatches = allMismatches.filter((m) => !ignored.includes(m.selector));
 
-      chrome.runtime.sendMessage({
-        type: "HYDRALENS_RESULTS",
-        payload: { mismatches: activeMismatches, totalFound: allMismatches.length },
-      }).catch(() => {});
+      chrome.runtime
+        .sendMessage({
+          type: "HYDRALENS_RESULTS",
+          payload: { mismatches: activeMismatches, totalFound: allMismatches.length },
+        })
+        .catch(() => {});
 
       activeMismatches.forEach((mismatch) => {
         const clientEl = document.querySelector(mismatch.selector) as HTMLElement | null;
@@ -146,7 +148,7 @@ async function runHydraLens(): Promise<void> {
     const message =
       error.name === "AbortError"
         ? "Fetch timed out (6s). The server may be too slow or streaming infinitely."
-        : error.message ?? "Unknown error during scan.";
+        : (error.message ?? "Unknown error during scan.");
     console.error("[HydraLens]", message);
     chrome.runtime.sendMessage({ type: "HYDRALENS_ERROR", payload: { message } }).catch(() => {});
   } finally {
@@ -157,6 +159,9 @@ async function runHydraLens(): Promise<void> {
 }
 
 chrome.runtime.onMessage.addListener((msg) => {
-  if (msg.type === "HYDRALENS_RUN")   runHydraLens();
-  if (msg.type === "HYDRALENS_CLEAR") { clearOverlays(); isScanning = false; }
+  if (msg.type === "HYDRALENS_RUN") runHydraLens();
+  if (msg.type === "HYDRALENS_CLEAR") {
+    clearOverlays();
+    isScanning = false;
+  }
 });

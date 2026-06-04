@@ -13,12 +13,12 @@ Results appear as color-coded overlays on the page and in the DevTools panel.
 
 ## Reading the Overlays
 
-| Colour | Severity | Meaning |
-|--------|----------|---------|
-| 🔴 Red | Security | Potential secret (JWT, API key, etc.) exposed in a DOM attribute |
-| 🟠 Orange | Critical | Text content or accessibility attribute mismatch |
-| 🟡 Yellow | Warning | Non-critical attribute differs between SSR and CSR |
-| 🔵 Blue | Info | Expected difference (timestamp, cache-bust param) |
+| Colour    | Severity | Meaning                                                          |
+| --------- | -------- | ---------------------------------------------------------------- |
+| 🔴 Red    | Security | Potential secret (JWT, API key, etc.) exposed in a DOM attribute |
+| 🟠 Orange | Critical | Text content or accessibility attribute mismatch                 |
+| 🟡 Yellow | Warning  | Non-critical attribute differs between SSR and CSR               |
+| 🔵 Blue   | Info     | Expected difference (timestamp, cache-bust param)                |
 
 Hover over an overlay to see the mismatch details and the fix snippet.
 
@@ -28,12 +28,12 @@ Hover over an overlay to see the mismatch details and the fix snippet.
 
 Open Chrome DevTools → **HydraLens** tab.
 
-| Control | Action |
-|---------|--------|
-| Severity filter buttons | Show only Security / Critical / Warning / Info |
-| **Ignore** button (per row) | Suppress this selector in future scans (persisted) |
-| **Rescan** button | Re-run the scan without reloading the page |
-| **Export** dropdown | Download results as Jira markup, GitHub Markdown, or JSON |
+| Control                     | Action                                                    |
+| --------------------------- | --------------------------------------------------------- |
+| Severity filter buttons     | Show only Security / Critical / Warning / Info            |
+| **Ignore** button (per row) | Suppress this selector in future scans (persisted)        |
+| **Rescan** button           | Re-run the scan without reloading the page                |
+| **Export** dropdown         | Download results as Jira markup, GitHub Markdown, or JSON |
 
 ---
 
@@ -66,7 +66,8 @@ To clear all ignored selectors: Popup → **Clear ignored selectors**.
 
 ## Scan Result Persistence
 
-Scan results are stored in `chrome.storage.session` and survive DevTools open/close cycles within the same browser session. They are cleared when:
+Scan results are stored in `chrome.storage.session` and survive DevTools
+open/close cycles within the same browser session. They are cleared when:
 
 - You close and reopen the tab
 - The browser is restarted
@@ -76,7 +77,13 @@ Scan results are stored in `chrome.storage.session` and survive DevTools open/cl
 
 ## Known Limitations
 
-- **Unauthenticated fetch** — the content script fetches the SSR HTML without session cookies. Pages behind login walls will compare the login page against the live DOM.
-- **Iframes** — cross-origin iframes are not scanned (browser security restriction).
-- **CSP-blocked pages** — a strict `script-src` policy may prevent the content script from injecting. HydraLens degrades gracefully and shows a "scan blocked by CSP" notice.
-- **Shadow DOM** — open Shadow DOM roots are scanned; closed roots are not accessible.
+- **Unauthenticated fetch** — the content script fetches the SSR HTML without
+  session cookies. Pages behind login walls will compare the login page against
+  the live DOM.
+- **Iframes** — cross-origin iframes are not scanned (browser security
+  restriction).
+- **CSP-blocked pages** — a strict `script-src` policy may prevent the content
+  script from injecting. HydraLens degrades gracefully and shows a "scan blocked
+  by CSP" notice.
+- **Shadow DOM** — open Shadow DOM roots are scanned; closed roots are not
+  accessible.

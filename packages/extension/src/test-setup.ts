@@ -1,7 +1,7 @@
 ﻿// Global chrome.* API stubs for vitest (jsdom has no chrome runtime)
 // Import this file via vitest.config.ts → test.setupFiles
 
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // ── chrome.storage ────────────────────────────────────────────
 const makeStorage = () => {
@@ -65,7 +65,7 @@ const makeNavEvent = () => {
 };
 
 // ── Assemble the global chrome object ────────────────────────
-const local   = makeStorage();
+const local = makeStorage();
 const session = makeStorage();
 
 globalThis.chrome = {
@@ -78,7 +78,7 @@ globalThis.chrome = {
     sendMessage: vi.fn(() => Promise.resolve()),
     onMessage: makeMessageBus(),
     lastError: undefined,
-    id: 'hydra-lens-test-extension-id',
+    id: "hydra-lens-test-extension-id",
   },
   tabs: {
     sendMessage: vi.fn(() => Promise.resolve()),
@@ -98,9 +98,9 @@ globalThis.chrome = {
 } as unknown as typeof chrome;
 
 // Reset all mocks between tests so state doesn't bleed across test cases
-import { beforeEach } from 'vitest';
+import { beforeEach } from "vitest";
 beforeEach(() => {
   vi.clearAllMocks();
-  Object.keys(local._store).forEach((k)   => delete local._store[k]);
+  Object.keys(local._store).forEach((k) => delete local._store[k]);
   Object.keys(session._store).forEach((k) => delete session._store[k]);
 });

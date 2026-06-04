@@ -2,10 +2,10 @@
 
 ## Prerequisites
 
-| Requirement | Version |
-|-------------|---------|
-| Node.js | ≥ 18 |
-| pnpm | ≥ 8 |
+| Requirement       | Version       |
+| ----------------- | ------------- |
+| Node.js           | ≥ 18          |
+| pnpm              | ≥ 8           |
 | Chrome / Chromium | Latest stable |
 
 ---
@@ -67,17 +67,18 @@ pnpm build:extension  # compile Chrome extension
 
 Build output locations:
 
-| Package | Output |
-|---------|--------|
-| `@hydra-lens/core` | `packages/core/dist/` |
-| Extension | `packages/extension/dist/` |
-| CLI | `packages/cli/dist/` |
+| Package            | Output                     |
+| ------------------ | -------------------------- |
+| `@hydra-lens/core` | `packages/core/dist/`      |
+| Extension          | `packages/extension/dist/` |
+| CLI                | `packages/cli/dist/`       |
 
 ---
 
 ## Verify Installation
 
-**Extension** — open any SSR page, click the HydraLens popup icon; the badge should show a scan count within a few seconds.
+**Extension** — open any SSR page, click the HydraLens popup icon; the badge
+should show a scan count within a few seconds.
 
 **CLI**:
 

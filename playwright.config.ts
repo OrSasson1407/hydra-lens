@@ -1,4 +1,4 @@
-﻿import { defineConfig, devices } from '@playwright/test';
+﻿import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Root Playwright config.
@@ -14,47 +14,44 @@
  *   packages/extension/tests/security/     → XSS hardening (pnpm test:e2e:xss)
  */
 export default defineConfig({
-  testDir: './tests/system',
+  testDir: "./tests/system",
 
   // Shared settings for all projects
   timeout: 60_000,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
-  reporter: [
-    ['list'],
-    ['html', { open: 'never', outputFolder: 'playwright-report' }],
-  ],
-  outputDir: 'test-results',
+  reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
+  outputDir: "test-results",
 
   use: {
-    baseURL: 'http://localhost:3000',
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    baseURL: "http://localhost:3000",
+    trace: "on-first-retry",
+    screenshot: "only-on-failure",
   },
 
   projects: [
     // System tests: Chromium (primary)
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
     // Cross-browser: Firefox
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-      testMatch: '**/cross-browser.system.spec.ts',
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+      testMatch: "**/cross-browser.system.spec.ts",
     },
     // Cross-browser: WebKit
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-      testMatch: '**/cross-browser.system.spec.ts',
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+      testMatch: "**/cross-browser.system.spec.ts",
     },
   ],
 
   // Spin up the demo app before the system test suite
   webServer: {
-    command: 'npx serve demo-app -p 3000 -s',
+    command: "npx serve demo-app -p 3000 -s",
     port: 3000,
     reuseExistingServer: !process.env.CI,
     timeout: 30_000,

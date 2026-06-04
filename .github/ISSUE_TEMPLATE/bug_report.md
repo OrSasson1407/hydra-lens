@@ -27,7 +27,8 @@ labels: bug
 - HydraLens version:
 - Chrome version:
 - OS:
-- Framework of the page being scanned (React / Vue / Svelte / Solid / Angular / Unknown):
+- Framework of the page being scanned (React / Vue / Svelte / Solid / Angular /
+  Unknown):
 
 ## Additional context
 

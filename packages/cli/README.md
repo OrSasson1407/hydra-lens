@@ -20,11 +20,11 @@ node packages/cli/dist/index.js \
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| `0` | No blocking issues |
-| `1` | Blocking issues found |
-| `2` | Fatal error |
+| Code | Meaning               |
+| ---- | --------------------- |
+| `0`  | No blocking issues    |
+| `1`  | Blocking issues found |
+| `2`  | Fatal error           |
 
 ## CI Example (GitHub Actions)
 
@@ -33,4 +33,5 @@ node packages/cli/dist/index.js \
   run: node packages/cli/dist/index.js https://staging.example.com
 ```
 
-See [docs/CLI-USAGE.md](../../docs/CLI-USAGE.md) for the complete flags reference, JSON report schema, and concurrency tuning guide.
+See [docs/CLI-USAGE.md](../../docs/CLI-USAGE.md) for the complete flags
+reference, JSON report schema, and concurrency tuning guide.

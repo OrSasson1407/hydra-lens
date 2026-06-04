@@ -10,7 +10,8 @@ packages/extension    packages/cli
 (Chrome Extension)    (Playwright CLI)
 ```
 
-`@hydra-lens/core` has zero runtime dependencies and no DOM globals — it is safe to import in Node, browser, and Playwright contexts alike.
+`@hydra-lens/core` has zero runtime dependencies and no DOM globals — it is safe
+to import in Node, browser, and Playwright contexts alike.
 
 ---
 
@@ -45,9 +46,11 @@ Mismatch[]
 ### Sync vs Async
 
 `detectMismatches` uses recursive DFS (simple, synchronous).  
-`detectMismatchesAsync` uses an explicit stack with `setTimeout(0)` yields every 15 ms — keeps the main thread responsive on very large DOMs.
+`detectMismatchesAsync` uses an explicit stack with `setTimeout(0)` yields every
+15 ms — keeps the main thread responsive on very large DOMs.
 
-Both call the **same** `processNode()` function, so detection results are identical.
+Both call the **same** `processNode()` function, so detection results are
+identical.
 
 ---
 
@@ -70,14 +73,17 @@ popup.ts  (toolbar popup)
 
 ### Shadow DOM Isolation
 
-The overlay `<div>` elements are appended to a **closed** Shadow Root attached to `document.body`. This prevents page styles from leaking into overlays and prevents overlay styles from affecting the page.
+The overlay `<div>` elements are appended to a **closed** Shadow Root attached
+to `document.body`. This prevents page styles from leaking into overlays and
+prevents overlay styles from affecting the page.
 
 ### Session Persistence
 
 `chrome.storage.session` is used (not `localStorage`) because:
 
 - It is cleared when the browser closes (no stale results across restarts)
-- It is shared between the background service worker and the DevTools panel without a message round-trip
+- It is shared between the background service worker and the DevTools panel
+  without a message round-trip
 
 ---
 
@@ -99,7 +105,9 @@ main()
   └─ browser.close()
 ```
 
-The core bundle (`packages/core/dist/index.global.js`) is injected via `addInitScript` so it is available as `window.__hydraLens` before any page script runs.
+The core bundle (`packages/core/dist/index.global.js`) is injected via
+`addInitScript` so it is available as `window.__hydraLens` before any page
+script runs.
 
 ---
 

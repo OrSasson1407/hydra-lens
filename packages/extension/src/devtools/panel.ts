@@ -1,11 +1,11 @@
-﻿// FIX: results are persisted to chrome.storage.session so the panel shows
+// FIX: results are persisted to chrome.storage.session so the panel shows
 //      the last scan immediately when DevTools is opened after a scan ran.
 
 const STORAGE_KEY = "hydralens_last_results";
 let currentMismatches: any[] = [];
 
-// ── Safe DOM text setter (replaces innerHTML to prevent XSS) ─────────────────
-function setText(el: Element, text: string): void {
+// ?? Safe DOM text setter (replaces innerHTML to prevent XSS) ?????????????????
+function _setText(el: Element, text: string): void {
   el.textContent = text;
 }
 
@@ -20,7 +20,7 @@ function createEl<K extends keyof HTMLElementTagNameMap>(
   return el;
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// ?? Render ????????????????????????????????????????????????????????????????????
 function renderResults(filter = "all"): void {
   const container = document.getElementById("results")!;
   container.innerHTML = "";
@@ -29,8 +29,8 @@ function renderResults(filter = "all"): void {
     filter === "all"
       ? currentMismatches
       : filter === "critical"
-      ? currentMismatches.filter((m) => ["critical", "security"].includes(m.severity))
-      : currentMismatches.filter((m) => m.severity === filter);
+        ? currentMismatches.filter((m) => ["critical", "security"].includes(m.severity))
+        : currentMismatches.filter((m) => m.severity === filter);
 
   if (filtered.length === 0) {
     container.appendChild(createEl("div", {}, "No issues found."));
@@ -68,14 +68,18 @@ function renderResults(filter = "all"): void {
     adviceBox.appendChild(createEl("code", {}, m.fixSnippet));
     card.appendChild(adviceBox);
 
-    const ignoreBtn = createEl("button", {
-      "data-selector": m.selector,
-      style: "margin-top:8px;background:#444;",
-    }, "Ignore Selector");
+    const ignoreBtn = createEl(
+      "button",
+      {
+        "data-selector": m.selector,
+        style: "margin-top:8px;background:#444;",
+      },
+      "Ignore Selector"
+    );
     ignoreBtn.addEventListener("click", (e) => {
       const selector = (e.target as HTMLElement).getAttribute("data-selector");
       chrome.storage.local.get(["ignoredSelectors"], (res) => {
-        const ignored: string[] = res.ignoredSelectors ?? [];
+        const ignored: string[] = (res.ignoredSelectors as string[]) ?? [];
         if (selector && !ignored.includes(selector)) ignored.push(selector);
         chrome.storage.local.set({ ignoredSelectors: ignored }, () => {
           (e.target as HTMLElement).textContent = "Ignored";
@@ -88,7 +92,7 @@ function renderResults(filter = "all"): void {
   }
 }
 
-// ── Persist & restore results across DevTools open/close ─────────────────────
+// ?? Persist & restore results across DevTools open/close ?????????????????????
 function saveResults(mismatches: any[]): void {
   // chrome.storage.session is cleared when the browser session ends (tab close / browser restart)
   chrome.storage.session.set({ [STORAGE_KEY]: mismatches });
@@ -96,14 +100,14 @@ function saveResults(mismatches: any[]): void {
 
 function restoreResults(): void {
   chrome.storage.session.get([STORAGE_KEY], (res) => {
-    if (res[STORAGE_KEY]?.length) {
-      currentMismatches = res[STORAGE_KEY];
+    if ((res[STORAGE_KEY] as any[])?.length) {
+      currentMismatches = res[STORAGE_KEY] as any[];
       renderResults((document.getElementById("severityFilter") as HTMLSelectElement).value);
     }
   });
 }
 
-// ── Message listener ──────────────────────────────────────────────────────────
+// ?? Message listener ??????????????????????????????????????????????????????????
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "HYDRALENS_RESULTS") {
     currentMismatches = msg.payload.mismatches;
@@ -113,11 +117,13 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "HYDRALENS_ERROR") {
     const container = document.getElementById("results")!;
     container.innerHTML = "";
-    container.appendChild(createEl("div", { style: "color:#ef4444;" }, `Error: ${msg.payload.message}`));
+    container.appendChild(
+      createEl("div", { style: "color:#ef4444;" }, `Error: ${msg.payload.message}`)
+    );
   }
 });
 
-// ── Toolbar event listeners ───────────────────────────────────────────────────
+// ?? Toolbar event listeners ???????????????????????????????????????????????????
 document.getElementById("refreshBtn")?.addEventListener("click", () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0]?.id) chrome.tabs.sendMessage(tabs[0].id, { type: "HYDRALENS_RUN" });

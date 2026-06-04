@@ -1,8 +1,8 @@
-﻿import { describe, it, expect } from 'vitest';
-import fc from 'fast-check';
+﻿import { describe, it, expect } from "vitest";
+import fc from "fast-check";
 
-describe('Fuzzing: CLI Sitemap XML Parser', () => {
-  it('gracefully handles completely randomized or corrupted XML structures', () => {
+describe("Fuzzing: CLI Sitemap XML Parser", () => {
+  it("gracefully handles completely randomized or corrupted XML structures", () => {
     fc.assert(
       fc.property(fc.string(), (corruptXml) => {
         // TODO: pass corruptXml to parseSitemap()

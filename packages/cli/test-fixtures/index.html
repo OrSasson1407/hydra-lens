@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Hydration Test</title>
-</head>
-<body>
+  </head>
+  <body>
     <div id="app" data-reactroot="">
-        <p>Server Time: 12:00:00</p>
-        <input type="hidden" name="aws_key" value="AKIAIOSFODNN7EXAMPLE">
+      <p>Server Time: 12:00:00</p>
+      <input type="hidden" name="aws_key" value="AKIAIOSFODNN7EXAMPLE" />
     </div>
     <script>
-        // Client overrides text and removes the dummy secret
-        document.querySelector('p').textContent = "Client Time: 12:00:05";
-        document.querySelector('input').value = "";
+      // Client overrides text and removes the dummy secret
+      document.querySelector("p").textContent = "Client Time: 12:00:05";
+      document.querySelector("input").value = "";
     </script>
-</body>
+  </body>
 </html>

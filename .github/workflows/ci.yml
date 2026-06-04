@@ -14,45 +14,45 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Cache pnpm store
         uses: actions/cache@v3
         with:
           path: ~/.local/share/pnpm/store
           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          
+
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          
+
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        
+
       - name: Run Unit Tests
         run: pnpm run test:unit
-        
+
       - name: Build
         run: pnpm run build
-        
+
       - name: Run Integration Tests
         run: pnpm run test:integration
-        
+
       - name: Run CLI E2E Tests
         run: pnpm run test:e2e:cli
-        
+
       - name: Run System Tests
         run: pnpm run test:system
-        
+
       - name: Upload Scan Report Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: scan-report
           path: report.json
-          
+
       - name: Post Test Coverage
         # Add test coverage summary as PR comment logic here
         run: echo "Post coverage summary"
