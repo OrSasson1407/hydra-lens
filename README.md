@@ -1,20 +1,16 @@
 ﻿# HydraLens
 
-HydraLens is a Chrome DevTools extension and headless CLI for debugging **React, Vue, and Angular hydration mismatches** in real-time.
+[![CI](https://github.com/your-org/hydra-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/hydra-lens/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/@hydra-lens/core)](https://www.npmjs.com/package/@hydra-lens/core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Features
+**HydraLens** is a Chrome DevTools extension and headless CLI for debugging React, Vue, Svelte, Solid, and Angular hydration mismatches in real-time.
 
-- **Real-time DOM Analysis** — compares SSR HTML with the live client DOM and highlights every mismatch with a color-coded overlay
-- **Framework-aware Fix Advice** — each mismatch includes actionable advice and a copy-ready code snippet tailored to React, Vue, or Angular
-- **Security Scanner** — detects exposed secrets in DOM attributes: JWT tokens, AWS keys, Stripe keys, GitHub tokens, Google API keys
-- **Severity Filtering** — filter issues by Security / Critical / Warning / Info in the DevTools panel
-- **Ignore Selector** — dismiss false positives per-selector; persisted across sessions
-- **Scan History** — popup shows the last 5 scan results with timestamps and delta vs previous scan
-- **Auto-scan Toggle** — automatically scans on full page loads and SPA navigations; can be disabled from the popup
-- **Export Formats** — export results as Jira wiki markup, GitHub Markdown (table + fix snippets), or raw JSON
-- **CI/CD Ready** — headless CLI using Playwright; exits with code 1 if critical/security issues are found
+> 📸 _Demo GIF placeholder — add `docs/assets/demo.gif` and update this line_
 
-## Getting Started
+---
+
+## Quick Start
 
 ```bash
 pnpm install
@@ -22,47 +18,73 @@ pnpm build:core
 pnpm build:extension
 ```
 
-Load `packages/extension/dist` as an **Unpacked Extension** in Chrome (`chrome://extensions` → Developer mode → Load unpacked).
+Load `packages/extension/dist` as an **Unpacked Extension** in Chrome:  
+`chrome://extensions` → Developer mode → **Load unpacked**
 
-## Development
+---
 
-```bash
-pnpm test          # run all unit tests
-pnpm build         # build core + extension
-```
+## Features
 
-## CLI Usage
+| Feature | Extension | CLI | Core |
+|---------|:---------:|:---:|:----:|
+| Real-time DOM overlay | ✅ | — | — |
+| Framework-aware fix advice | ✅ | ✅ | ✅ |
+| Security secret scanner | ✅ | ✅ | ✅ |
+| Severity filtering | ✅ | ✅ | ✅ |
+| Ignore selector (persisted) | ✅ | — | — |
+| Scan history (last 5) | ✅ | — | — |
+| Auto-scan on navigation | ✅ | — | — |
+| Export Jira / Markdown / JSON | ✅ | ✅ | — |
+| Sitemap crawl | — | ✅ | — |
+| Parallel concurrency pool | — | ✅ | — |
+| CI exit-code integration | — | ✅ | — |
 
-```bash
-# Scan a local dev server
-node packages/cli/dist/index.js http://localhost:3000
+## Supported Frameworks
 
-# Use in CI (exits 1 on critical/security issues)
-node packages/cli/dist/index.js https://staging.example.com
-```
+React · Vue · Svelte · SolidJS · Angular
+
+---
 
 ## Architecture
 
+Three packages share a single detection core:
+
 | Package | Purpose |
 |---------|---------|
-| `@hydra-lens/core` | Pure detection logic — no DOM/browser dependencies; fully unit tested |
-| `packages/extension` | Chrome Extension: content script, DevTools panel, popup, background worker |
+| `@hydra-lens/core` | Pure detection logic — no DOM/browser deps; fully unit tested |
+| `packages/extension` | Chrome Extension: content script, DevTools panel, popup, background |
 | `packages/cli` | Playwright headless runner for CI/CD pipelines |
+
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
+
+---
+
+## Documentation
+
+- [Installation](docs/INSTALL.md)
+- [CLI Usage](docs/CLI-USAGE.md)
+- [Extension Usage](docs/EXTENSION-USAGE.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Detection Heuristics](docs/HEURISTICS.md)
+- [Testing Guide](docs/TESTING.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+
+---
 
 ## Adding New Heuristics
 
-- **New secret patterns** → add to `SECRET_PATTERNS` in `packages/core/src/index.ts`
-- **New framework advice** → add an entry to `ADVICE_DATABASE` in `packages/core/src/index.ts`
-- **New severity rules** → extend `classifyAttributeMismatch` in `packages/core/src/index.ts`
+- **New secret pattern** → `SECRET_PATTERNS` in `packages/core/src/index.ts`
+- **New framework advice** → `ADVICE_DATABASE` in `packages/core/src/index.ts`
+- **New severity rule** → `classifyAttributeMismatch` in `packages/core/src/index.ts`
 
-## Changelog
+See [docs/HEURISTICS.md](docs/HEURISTICS.md) for the full guide.
 
-### v0.5.0
-- Wired `getFix()` into `detectMismatches` — every mismatch now has advice + fix snippet
-- Added Vue and Angular entries to `ADVICE_DATABASE`
-- Full DevTools panel implementation with severity filters and Ignore button
-- Popup redesigned with scan history, export buttons (Jira / Markdown / JSON), and auto-scan toggle
-- CLI rewritten to inject compiled core bundle via `addInitScript` (no more `toString()` hack)
-- Auto-scan now fires on both SPA navigations and full page loads, with a toggle to disable
-- Overlay repositioning fixed for scroll, window resize, and element resize (ResizeObserver)
-- Expanded test suite: empty DOM, ignored tags, getFix wiring, framework detection edge cases
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE). © 2025 HydraLens Contributors  
+Full changelog: [CHANGELOG.md](CHANGELOG.md)

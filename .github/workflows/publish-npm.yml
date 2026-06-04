@@ -1,0 +1,50 @@
+﻿# Dedicated lightweight publish workflow.
+# Triggered only after the full CI suite passes on a version tag.
+# Keeps publish logic separate from the release asset packaging in release.yml.
+
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+  id-token: write   # Required for npm provenance
+
+jobs:
+  publish:
+    name: Publish @hydra-lens/core
+    runs-on: ubuntu-latest
+    environment: npm-publish   # Requires manual approval gate in GitHub Environments
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run full test suite
+        run: pnpm test:all
+
+      - name: Build core package
+        run: pnpm build:core
+
+      - name: Verify package contents
+        run: pnpm --filter @hydra-lens/core pack --dry-run
+
+      - name: Publish to npm (with provenance)
+        run: pnpm --filter @hydra-lens/core publish --no-git-checks --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

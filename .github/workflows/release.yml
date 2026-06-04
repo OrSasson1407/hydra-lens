@@ -1,35 +1,51 @@
-﻿name: Release
+﻿# Packages and uploads release assets. The actual npm publish is handled by
+# .github/workflows/publish-npm.yml (separate job with manual approval gate).
+
+name: Release
+
 on:
   push:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
-  publish:
+  release:
+    name: Build & publish GitHub Release
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install
-      
-      - name: Full Test Suite
-        run: pnpm run test:all
-        
-      - name: Publish to NPM
-        run: pnpm publish --filter @hydra-lens/core
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          
-      - name: Package Extension for Chrome Store
-        run: cd packages/extension/dist && zip -r extension.zip .
-        
-      - name: Package CLI via pkg
-        run: pnpm run build:binaries
-        
-      - name: GitHub Release
-        uses: softprops/action-gh-release@v1
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
         with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Full test suite
+        run: pnpm test:all
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Package extension zip
+        run: |
+          cd packages/extension/dist
+          zip -r ../../../hydra-lens-extension-${{ github.ref_name }}.zip .
+          cd ../../..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
           files: |
-            packages/extension/dist/extension.zip
-            packages/cli/dist/hydra-lens-win.exe
-            packages/cli/dist/hydra-lens-mac
-            packages/cli/dist/hydra-lens-linux
+            hydra-lens-extension-${{ github.ref_name }}.zip

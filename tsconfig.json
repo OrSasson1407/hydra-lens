@@ -1,0 +1,21 @@
+﻿{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"]
+  },
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/cli" },
+    { "path": "./packages/extension" }
+  ],
+  "exclude": ["node_modules", "dist", "**/dist/**"]
+}

@@ -1,0 +1,73 @@
+﻿{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build: core",
+      "type": "shell",
+      "command": "pnpm build:core",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Build: extension",
+      "type": "shell",
+      "command": "pnpm build:extension",
+      "group": "build",
+      "dependsOn": "Build: core",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Build: all",
+      "type": "shell",
+      "command": "pnpm build",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Test: unit",
+      "type": "shell",
+      "command": "pnpm test:unit",
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Test: integration",
+      "type": "shell",
+      "command": "pnpm test:integration",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Test: all",
+      "type": "shell",
+      "command": "pnpm test:all",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Test: e2e CLI",
+      "type": "shell",
+      "command": "pnpm test:e2e:cli",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Test: e2e extension",
+      "type": "shell",
+      "command": "pnpm test:e2e:extension",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" }
+    },
+    {
+      "label": "Lint",
+      "type": "shell",
+      "command": "pnpm lint",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "shared" },
+      "problemMatcher": ["$eslint-stylish"]
+    }
+  ]
+}
