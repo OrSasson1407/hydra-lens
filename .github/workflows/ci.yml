@@ -48,7 +48,7 @@ jobs:
         
       - name: Upload Scan Report Artifact
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: scan-report
           path: report.json
