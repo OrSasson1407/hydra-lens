@@ -21,7 +21,7 @@ jobs:
         run: pnpm audit --audit-level=high --prod
         
       - name: HydraLens Security Scan
-        run: pnpm exec hydra-lens --security-only http://localhost:3000
+        run: pnpm exec --config.minimum-release-age=0 hydra-lens --security-only http://localhost:3000
         
       - name: Playwright XSS Tests
         run: pnpm run test:e2e:xss
