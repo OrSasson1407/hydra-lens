@@ -6,6 +6,7 @@ settings:
 
 overrides:
   tmp: ^0.2.6
+  external-editor>tmp: ^0.2.6
 
 importers:
 
