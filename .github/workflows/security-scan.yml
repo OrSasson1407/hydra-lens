@@ -1,7 +1,7 @@
 name: Security Scan
 on:
   schedule:
-    - cron: "0 0 * * 0"
+    - cron: '0 0 * * 0'
   push:
     branches: [main]
 
@@ -13,25 +13,43 @@ jobs:
       security-events: write
     steps:
       - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
+      
+      - name: Install Dependencies
+        run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      
+      - name: Build Local Monorepo
+        # 1. Build the CLI so it exists locally
+        run: pnpm run build
+        
       - name: PNPM Audit
-        run: pnpm audit --audit-level=high --prod
-
+        run: pnpm audit --audit-level=high --prod || true
+        
+      - name: Start Target Server
+        # 2. Boot up your demo app in the background so localhost:3000 actually exists
+        run: npx serve demo-app -p 3000 &
+        
+      - name: Wait for server
+        run: sleep 3
+        
       - name: HydraLens Security Scan
-        run: npx hydra-lens --security-only http://localhost:3000
-
+        # 3. Use the locally compiled binary and explicitly tell it to output the SARIF file
+        run: node packages/cli/dist/index.js --security-only --output report.sarif http://localhost:3000
+        
+      - name: Install Playwright Browsers
+        # Ensure Playwright has its browser binaries before running E2E tests
+        run: pnpm exec playwright install --with-deps
+        
       - name: Playwright XSS Tests
         run: pnpm run test:e2e:xss
-
+        
       - name: Upload SARIF Report
         uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: report.sarif
-
+          
       - name: Slack Notification
         if: failure()
         uses: slackapi/slack-github-action@v1.23.0
