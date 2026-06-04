@@ -11,6 +11,11 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20]
+    
+    # Define globally so EVERY pnpm command in this job ignores the release age
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      npm_config_minimum_release_age: '0' 
 
     steps:
       - uses: actions/checkout@v3
@@ -27,9 +32,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
-        run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # The environment variables handle the bypass automatically now
+        run: npm install -g pnpm && pnpm install --no-frozen-lockfile
 
       - name: Run Unit Tests
         run: pnpm run test:unit
