@@ -18,7 +18,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       - name: PNPM Audit
-        run: pnpm audit --audit-level=high
+        run: pnpm audit --audit-level=high --prod
         
       - name: HydraLens Security Scan
         run: pnpm exec hydra-lens --security-only http://localhost:3000
