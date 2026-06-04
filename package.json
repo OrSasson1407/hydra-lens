@@ -1,7 +1,8 @@
 {
     "name":  "hydra-lens-monorepo",
     "private":  true,
-    "scripts":  {
+    "scripts": {
+    "ci:local": "pnpm install && pnpm audit --audit-level=high --prod && pnpm run typecheck && pnpm run format:check && pnpm run lint && pnpm run build && pnpm run test:all",
                     "build:extension":  "pnpm --filter hydra-lens-extension build",
                     "build:core":  "pnpm --filter @hydra-lens/core build",
                     "build":  "pnpm build:core \u0026\u0026 pnpm build:extension",
