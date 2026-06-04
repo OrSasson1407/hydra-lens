@@ -1,0 +1,16 @@
+{
+  "name": "@hydra-lens/cli",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsup src/index.ts",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
+  }
+}

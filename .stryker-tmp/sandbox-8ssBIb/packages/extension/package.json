@@ -1,0 +1,17 @@
+{
+  "name": "hydra-lens-extension",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@hydra-lens/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.40",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}
