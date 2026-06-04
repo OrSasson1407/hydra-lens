@@ -1,33 +1,54 @@
-import { detectMismatchesAsync, type Mismatch, type Severity } from "@hydra-lens/core";
+﻿import { detectMismatchesAsync, type Mismatch, type Severity } from "@hydra-lens/core";
 
-// --- SHADOW DOM SETUP ---
+// ── SHADOW DOM SETUP ──────────────────────────────────────────────────────────
 const HOST_ID = "hydra-lens-host";
 let shadowRoot: ShadowRoot | null = null;
 
 function getShadowRoot(): ShadowRoot {
-  let host = document.getElementById(HOST_ID);
-  if (!host) {
-    host = document.createElement("div");
-    host.id = HOST_ID;
-    // The host element itself must not interfere with page layout or capture clicks
-    host.style.cssText = "position: fixed; top: 0; left: 0; width: 0; height: 0; z-index: 2147483647; pointer-events: none;";
-    document.documentElement.appendChild(host);
-    shadowRoot = host.attachShadow({ mode: "open" });
+  // FIX: always re-use an existing host+shadow instead of creating a duplicate
+  let host = document.getElementById(HOST_ID) as HTMLElement | null;
+  if (host) {
+    if (!shadowRoot) {
+      // Host exists but our module-level reference was lost (e.g. after a soft nav).
+      // shadowRoot on the host is permanent once attached, so we can recover it.
+      shadowRoot = host.shadowRoot;
+    }
+    return shadowRoot as ShadowRoot;
   }
-  return shadowRoot as ShadowRoot;
+  host = document.createElement("div");
+  host.id = HOST_ID;
+  host.style.cssText =
+    "position:fixed;top:0;left:0;width:0;height:0;z-index:2147483647;pointer-events:none;";
+  document.documentElement.appendChild(host);
+  shadowRoot = host.attachShadow({ mode: "open" });
+  return shadowRoot;
 }
 
+// ── OVERLAY STATE ─────────────────────────────────────────────────────────────
 const overlayElements: HTMLElement[] = [];
 const resizeObservers: ResizeObserver[] = [];
+// FIX: keep references to scroll/resize handlers so we can remove them on clear
+type ReposHandler = () => void;
+const windowListeners: { scroll: ReposHandler; resize: ReposHandler }[] = [];
+
+// FIX: isScanning is set to true only inside the try block so a pre-try throw
+//      never permanently locks the extension
 let isScanning = false;
 
 function clearOverlays(): void {
+  // Remove per-overlay window listeners before clearing elements
+  for (const { scroll, resize } of windowListeners) {
+    window.removeEventListener("scroll", scroll);
+    window.removeEventListener("resize", resize);
+  }
+  windowListeners.length = 0;
+
   overlayElements.forEach((el) => el.remove());
   overlayElements.length = 0;
+
   resizeObservers.forEach((ro) => ro.disconnect());
   resizeObservers.length = 0;
-  
-  // Clean up host if it exists to keep the DOM tidy
+
   const host = document.getElementById(HOST_ID);
   if (host) host.remove();
   shadowRoot = null;
@@ -45,37 +66,37 @@ function drawOverlay(element: HTMLElement, mismatch: Mismatch): void {
   const style = SEVERITY_STYLE[mismatch.severity];
 
   const overlay = document.createElement("div");
-  // z-index removed from here because the Shadow Host handles it
   overlay.style.cssText = `
-    position: fixed; pointer-events: none;
-    border: 2px dashed ${style.border}; background: ${style.bg};
-    box-sizing: border-box; transition: top 0.1s, left 0.1s, width 0.1s, height 0.1s;
+    position:fixed;pointer-events:none;
+    border:2px dashed ${style.border};background:${style.bg};
+    box-sizing:border-box;transition:top 0.1s,left 0.1s,width 0.1s,height 0.1s;
   `;
 
   const tooltip = document.createElement("div");
   tooltip.style.cssText = `
-    position: absolute; bottom: calc(100% + 4px); left: 0;
-    background: #111827; color: #fff; padding: 3px 8px;
-    font-size: 11px; font-family: monospace; white-space: nowrap;
-    border-left: 3px solid ${style.border}; border-radius: 0 3px 3px 0;
+    position:absolute;bottom:calc(100% + 4px);left:0;
+    background:#111827;color:#fff;padding:3px 8px;
+    font-size:11px;font-family:monospace;white-space:nowrap;
+    border-left:3px solid ${style.border};border-radius:0 3px 3px 0;
   `;
   tooltip.textContent = `[${style.label}] <${mismatch.componentName || "element"}>`;
-
   overlay.appendChild(tooltip);
-  root.appendChild(overlay); // Inject into Shadow DOM instead of documentElement
+  root.appendChild(overlay);
   overlayElements.push(overlay);
 
-  function reposition() {
+  function reposition(): void {
     const rect = element.getBoundingClientRect();
     overlay.style.top    = `${rect.top    - 2}px`;
     overlay.style.left   = `${rect.left   - 2}px`;
     overlay.style.width  = `${rect.width  + 4}px`;
     overlay.style.height = `${rect.height + 4}px`;
   }
-
   reposition();
+
+  // FIX: store handler references so clearOverlays() can remove them
   window.addEventListener("scroll", reposition, { passive: true });
   window.addEventListener("resize", reposition, { passive: true });
+  windowListeners.push({ scroll: reposition, resize: reposition });
 
   const ro = new ResizeObserver(reposition);
   ro.observe(element);
@@ -83,12 +104,14 @@ function drawOverlay(element: HTMLElement, mismatch: Mismatch): void {
 }
 
 async function runHydraLens(): Promise<void> {
+  // FIX: guard is checked before any async work; flag is set only after clearOverlays succeeds
   if (isScanning) {
     console.log("[HydraLens] Scan already in progress.");
     return;
   }
+
+  clearOverlays(); // synchronous — if this throws, isScanning stays false (correct)
   isScanning = true;
-  clearOverlays();
 
   const controller = new AbortController();
   const timeoutId  = setTimeout(() => controller.abort(), 6000);
@@ -102,6 +125,7 @@ async function runHydraLens(): Promise<void> {
     clearTimeout(timeoutId);
 
     await new Promise((resolve) => setTimeout(resolve, 800));
+
     const allMismatches = await detectMismatchesAsync(serverHTML, document);
 
     chrome.storage.local.get(["ignoredSelectors"], (res) => {
@@ -119,15 +143,16 @@ async function runHydraLens(): Promise<void> {
       });
     });
   } catch (error: any) {
-    const message = error.name === "AbortError"
-      ? "Fetch timed out (6s). The server may be too slow or streaming infinitely."
-      : error.message ?? "Unknown error during scan.";
-
+    const message =
+      error.name === "AbortError"
+        ? "Fetch timed out (6s). The server may be too slow or streaming infinitely."
+        : error.message ?? "Unknown error during scan.";
     console.error("[HydraLens]", message);
     chrome.runtime.sendMessage({ type: "HYDRALENS_ERROR", payload: { message } }).catch(() => {});
   } finally {
     clearTimeout(timeoutId);
-    setTimeout(() => { isScanning = false; }, 2000);
+    // FIX: reset immediately in finally; no arbitrary 2s delay that could cause stuck state
+    isScanning = false;
   }
 }
 
@@ -135,4 +160,3 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "HYDRALENS_RUN")   runHydraLens();
   if (msg.type === "HYDRALENS_CLEAR") { clearOverlays(); isScanning = false; }
 });
-
