@@ -11,9 +11,9 @@
                     "test:fuzz":  "vitest run .fuzz.test.ts",
                     "test:security":  "vitest run .sec.test.ts",
                     "test:bench":  "vitest bench --run",
-                    "test:e2e:cli":  "playwright test packages/cli/tests/e2e",
-                    "test:e2e:extension":  "playwright test packages/extension/tests/e2e",
-                    "test:e2e:xss":  "playwright test packages/extension/tests/security",
+                    "test:e2e:cli":  "playwright test --config=packages/cli/playwright.config.ts",
+                    "test:e2e:extension":  "playwright test --config=packages/extension/playwright.config.ts",
+                    "test:e2e:xss":  "playwright test --config=packages/extension/playwright.config.ts packages/extension/tests/security",
                     "test:system":  "playwright test tests/system",
                     "test:mutate":  "stryker run",
                     "test:all":  "pnpm run test:unit \u0026\u0026 pnpm run test:integration \u0026\u0026 pnpm run test:security \u0026\u0026 pnpm run test:e2e:cli \u0026\u0026 pnpm run test:e2e:extension \u0026\u0026 pnpm run test:system",
@@ -38,8 +38,5 @@
                             "@typescript-eslint/parser":  "^8.0.0",
                             "globals":  "^15.0.0",
                             "prettier":  "^3.0.0"
-                        },
-  "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
-  }
+                        }
 }
