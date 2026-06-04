@@ -27,7 +27,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           
       - name: Install dependencies
-        run: npm install -g pnpm && pnpm install --config.minimum-release-age=0
+        run: npm install -g pnpm && pnpm install --config.minimum-release-age=0 --no-frozen-lockfile
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         
