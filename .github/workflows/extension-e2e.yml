@@ -3,27 +3,44 @@
 on:
   pull_request:
     paths:
-      - "packages/extension/**"
+      - 'packages/extension/**'
+      - 'packages/core/**'
 
 jobs:
   test_extension:
+    name: Extension Playwright tests
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
-      - run: pnpm run build --filter @hydra-lens/extension
+      - uses: actions/checkout@v4
 
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium
-
-      - name: Run Extension E2E
-        run: pnpm run test:e2e:extension --retries 2
-
-      - name: Upload HTML Report
-        if: failure()
-        uses: actions/upload-artifact@v3
+      - uses: pnpm/action-setup@v3
         with:
-          name: playwright-report
-          path: playwright-report/
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build core then extension
+        run: pnpm build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Run extension e2e
+        run: pnpm test:e2e:extension --retries 2
+
+      - name: Upload report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-extension
+          path: playwright-report/extension/
+          retention-days: 7

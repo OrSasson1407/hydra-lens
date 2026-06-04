@@ -1,62 +1,127 @@
-name: CI
+﻿name: CI
 
 on:
   push:
     branches: [main, master]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build_and_test:
+  lint:
+    name: Lint & typecheck
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+  test:
+    name: Unit + integration (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    needs: lint
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     strategy:
       matrix:
         node-version: [18, 20]
-    
-    # Define globally so EVERY pnpm command in this job ignores the release age
-    env:
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      npm_config_minimum_release_age: '0' 
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Cache pnpm store
-        uses: actions/cache@v3
+      - uses: pnpm/action-setup@v3
         with:
-          path: ~/.local/share/pnpm/store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          version: 8
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: pnpm
 
       - name: Install dependencies
-        # The environment variables handle the bypass automatically now
-        run: npm install -g pnpm && pnpm install --no-frozen-lockfile
-
-      - name: Run Unit Tests
-        run: pnpm run test:unit
+        run: pnpm install --frozen-lockfile
 
       - name: Build
-        run: pnpm run build
+        run: pnpm build
 
-      - name: Run Integration Tests
-        run: pnpm run test:integration
+      - name: Unit tests
+        run: pnpm test:unit
 
-      - name: Run CLI E2E Tests
-        run: pnpm run test:e2e:cli
+      - name: Integration tests
+        run: pnpm test:integration
 
-      - name: Run System Tests
-        run: pnpm run test:system
+      - name: Security tests
+        run: pnpm test:security
 
-      - name: Upload Scan Report Artifact
+  e2e:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: CLI e2e tests
+        run: pnpm test:e2e:cli
+
+      - name: Extension e2e tests
+        run: pnpm test:e2e:extension --retries 2
+
+      - name: System tests
+        run: pnpm test:system
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload scan report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: scan-report
           path: report.json
-
-      - name: Post Test Coverage
-        # Add test coverage summary as PR comment logic here
-        run: echo "Post coverage summary"
+          if-no-files-found: warn

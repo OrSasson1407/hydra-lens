@@ -1,39 +1,64 @@
-﻿name: Advanced Reliability & Security
+﻿name: Advanced reliability
 
 on:
   schedule:
-    - cron: "0 2 * * 1" 
-  workflow_dispatch: 
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
 
 jobs:
-  fuzz_and_bench:
+  fuzz:
+    name: Fuzz + benchmarks
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
+      - uses: actions/checkout@v4
 
-      - name: Run Fast-Check Fuzzing Suite
-        run: pnpm run test:fuzz
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
 
-      - name: Run Vitest Benchmarks
-        run: pnpm run test:bench
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
 
-  mutation_testing:
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:core
+
+      - name: Fast-check fuzz suite
+        run: pnpm test:fuzz
+
+      - name: Vitest benchmarks
+        run: pnpm test:bench
+
+  mutation:
+    name: Mutation testing (Stryker)
     runs-on: ubuntu-latest
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
+      - uses: actions/checkout@v4
 
-      - name: Run Stryker Mutator
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build:core
+
+      - name: Stryker mutation run
         run: pnpm exec stryker run
 
-      - name: Upload Mutation Report
-        uses: actions/upload-artifact@v3
+      - name: Upload mutation report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: stryker-report
           path: reports/mutation/
+          retention-days: 14

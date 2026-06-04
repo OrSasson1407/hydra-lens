@@ -1,7 +1,12 @@
-packages:
-  - "apps/*"
-  - "packages/*"
-allowBuilds:
-  esbuild: true
-onlyBuiltDependencies:
-  - esbuild
+﻿packages:
+  - 'packages/*'
+
+pnpm:
+  allowBuilds:
+    esbuild: true
+  onlyBuiltDependencies:
+    - esbuild
+  # Set to 0 so freshly-published transitive deps (e.g. electron-to-chromium)
+  # never block installs. If your security policy needs a cutoff, raise this
+  # to e.g. "24 hours" — but 0 is correct for an active OSS project.
+  minimumReleaseAge: 0
