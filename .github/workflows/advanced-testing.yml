@@ -2,15 +2,17 @@
 
 on:
   schedule:
-    - cron: "0 2 * * 1" # Runs every Monday at 2 AM
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+    - cron: "0 2 * * 1" 
+  workflow_dispatch: 
 
 jobs:
   fuzz_and_bench:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install
+      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
 
       - name: Run Fast-Check Fuzzing Suite
         run: pnpm run test:fuzz
@@ -20,9 +22,11 @@ jobs:
 
   mutation_testing:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install
+      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
 
       - name: Run Stryker Mutator
         run: pnpm exec stryker run

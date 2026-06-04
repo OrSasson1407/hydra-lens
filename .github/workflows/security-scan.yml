@@ -11,17 +11,17 @@ jobs:
     permissions:
       contents: read
       security-events: write
-    # Define globally so EVERY pnpm command ignores the release age
+    # Define globally so .npmrc can resolve ${NPM_TOKEN} without warnings
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      npm_config_minimum_release_age: '0' 
     steps:
       - uses: actions/checkout@v3
       
       - name: Setup & Install Dependencies
+        # Explicitly bypass the release age check here
         run: |
           npm install -g pnpm
-          pnpm install --no-frozen-lockfile
+          pnpm install --no-frozen-lockfile --config.minimum-release-age=0
       
       - name: Build Local Monorepo
         run: pnpm run build
@@ -36,7 +36,6 @@ jobs:
         run: sleep 3
         
       - name: HydraLens Security Scan
-        # The scan will run, detect issues, save to report.sarif, and continue
         run: node packages/cli/dist/index.js --security-only --output report.sarif http://localhost:3000 || true
         
       - name: Install Playwright Browsers

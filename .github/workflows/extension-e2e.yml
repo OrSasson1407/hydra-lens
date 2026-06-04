@@ -8,9 +8,11 @@ on:
 jobs:
   test_extension:
     runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-      - run: npm install -g pnpm && pnpm install
+      - run: npm install -g pnpm && pnpm install --no-frozen-lockfile --config.minimum-release-age=0
       - run: pnpm run build --filter @hydra-lens/extension
 
       - name: Install Playwright Chromium
