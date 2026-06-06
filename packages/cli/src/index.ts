@@ -1,4 +1,4 @@
-import { chromium, Browser } from "playwright";
+﻿import { chromium, Browser } from "playwright";
 import { detectMismatches as _detectMismatches } from "@hydra-lens/core";
 import * as fs from "fs";
 import * as path from "path";
@@ -20,6 +20,7 @@ const securityOnly = hasFlag("--security-only");
 const sitemapUrl = getFlag("--sitemap");
 // FIX: concurrency limit (default 4 parallel pages; override with --concurrency N)
 const concurrencyArg = parseInt(getFlag("--concurrency") ?? "4", 10);
+const authStateFile = getFlag("--auth-state");
 
 const THRESHOLD_LEVELS: Record<string, string[]> = {
   security: ["security"],
@@ -45,7 +46,10 @@ function getCoreBundlePath(): string {
 async function fetchSitemapUrls(url: string): Promise<string[]> {
   const res = await fetch(url);
   const text = await res.text();
-  return [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1].trim());
+  const raw = [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1].trim());
+  return raw
+    .map((u) => u.replace(/<!\[CDATA\[|\]\]>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim())
+    .filter((u) => { try { new URL(u); return true; } catch { console.warn(`[HydraLens] Skipping invalid sitemap URL: ${u}`); return false; } });
 }
 
 // ?? Single page scan (uses a shared browser passed in) ???????????????????????
@@ -56,10 +60,11 @@ interface ScanResult {
   error?: string;
 }
 
-// FIX: browser is now a parameter � callers share a single instance instead of
+// FIX: browser is now a parameter ן¿½ callers share a single instance instead of
 //      launching and destroying a new process for every URL in the list.
-async function scanPage(url: string, browser: Browser, coreBundle: string): Promise<ScanResult> {
-  const page = await browser.newPage();
+async function scanPage(url: string, browser: Browser, coreBundle: string, storageState?: string): Promise<ScanResult> {
+  const context = await browser.newContext(storageState ? { storageState } : {});
+  const page = await context.newPage();
   const start = Date.now();
   try {
     const response = await page.request.get(url);
@@ -78,11 +83,12 @@ async function scanPage(url: string, browser: Browser, coreBundle: string): Prom
     return { url, mismatches: [], durationMs: Date.now() - start, error: e.message };
   } finally {
     await page.close();
+    await context.close();
   }
 }
 
 // ?? Concurrency pool helper ???????????????????????????????????????????????????
-// Runs tasks with at most `limit` in flight at once � no external dep needed.
+// Runs tasks with at most `limit` in flight at once ן¿½ no external dep needed.
 async function pLimit<T>(tasks: Array<() => Promise<T>>, limit: number): Promise<T[]> {
   const results: T[] = new Array(tasks.length);
   let nextIndex = 0;
@@ -105,6 +111,7 @@ async function main(): Promise<void> {
   if (securityOnly) console.log("[HydraLens] Mode: security-only");
   if (thresholdArg) console.log(`[HydraLens] Fail threshold: ${thresholdArg}+`);
   console.log(`[HydraLens] Concurrency: ${concurrencyArg}`);
+  if (authStateFile) console.log(`[HydraLens] Auth state: ${authStateFile}`);
 
   const coreBundle = fs.readFileSync(getCoreBundlePath(), "utf-8");
 
@@ -122,7 +129,7 @@ async function main(): Promise<void> {
 
   const tasks = urls.map((url: string) => async (): Promise<ScanResult> => {
     process.stdout.write(`  Scanning ${url} ... `);
-    const result = await scanPage(url, browser, coreBundle);
+    const result = await scanPage(url, browser, coreBundle, authStateFile);
     if (result.error) {
       console.log(`ERROR: ${result.error}`);
     } else {
@@ -179,3 +186,5 @@ main().catch((e) => {
   console.error("[HydraLens] Fatal:", e);
   process.exit(1);
 });
+
+

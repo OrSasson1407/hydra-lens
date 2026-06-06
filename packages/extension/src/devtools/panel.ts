@@ -1,4 +1,4 @@
-// FIX: results are persisted to chrome.storage.session so the panel shows
+﻿// FIX: results are persisted to chrome.storage.session so the panel shows
 //      the last scan immediately when DevTools is opened after a scan ran.
 
 const STORAGE_KEY = "hydralens_last_results";
@@ -82,7 +82,8 @@ function renderResults(filter = "all"): void {
         const ignored: string[] = (res.ignoredSelectors as string[]) ?? [];
         if (selector && !ignored.includes(selector)) ignored.push(selector);
         chrome.storage.local.set({ ignoredSelectors: ignored }, () => {
-          (e.target as HTMLElement).textContent = "Ignored";
+          currentMismatches = currentMismatches.filter((m) => m.selector !== selector);
+          renderResults((document.getElementById("severityFilter") as HTMLSelectElement).value);
         });
       });
     });
@@ -109,6 +110,12 @@ function restoreResults(): void {
 
 // ?? Message listener ??????????????????????????????????????????????????????????
 chrome.runtime.onMessage.addListener((msg) => {
+  if (msg.type === "HYDRALENS_PROGRESS") {
+    const container = document.getElementById("results")!;
+    container.innerHTML = "";
+    const status = createEl("div", { style: "color:#60a5fa;font-style:italic;" }, msg.payload.status);
+    container.appendChild(status);
+  }
   if (msg.type === "HYDRALENS_RESULTS") {
     currentMismatches = msg.payload.mismatches;
     saveResults(currentMismatches);
@@ -134,9 +141,21 @@ document.getElementById("severityFilter")?.addEventListener("change", (e) => {
   renderResults((e.target as HTMLSelectElement).value);
 });
 
+document.getElementById("copyMdBtn")?.addEventListener("click", () => {
+  if (currentMismatches.length === 0) { alert("No results to copy."); return; }
+  const lines = ["# HydraLens Report\n", "| Severity | Component | Selector | Reason | Advice |", "|---|---|---|---|---|"];
+  for (const m of currentMismatches)
+    lines.push(`| ${m.severity} | ${m.componentName ?? "Unknown"} | \`${m.selector}\` | ${m.severityReason} | ${m.advice} |`);
+  navigator.clipboard.writeText(lines.join("\n")).then(() => alert("Markdown copied to clipboard!"));
+});
+
 document.getElementById("clearIgnoreBtn")?.addEventListener("click", () => {
   chrome.storage.local.set({ ignoredSelectors: [] }, () => alert("Ignore list cleared!"));
 });
 
 // FIX: restore last scan results when the panel mounts (fixes blank-panel-on-open)
 restoreResults();
+
+
+
+

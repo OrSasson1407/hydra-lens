@@ -79,6 +79,30 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
       snippet: "// Use TransferState to pass server data to the client without re-fetching.",
     },
   },
+  NextComponent: {
+    "text-mismatch": {
+      advice:
+        "Use `suppressHydrationWarning` on the element or move dynamic content into a `useEffect` to avoid Next.js SSR/CSR mismatches.",
+      snippet:
+        "const [mounted, setMounted] = useState(false);\nuseEffect(() => setMounted(true), []);\nif (!mounted) return <div>{serverFallback}</div>;",
+    },
+    "attribute-mismatch": {
+      advice: "Wrap dynamic attributes with `suppressHydrationWarning` or defer them via `useEffect`.",
+      snippet: "<div suppressHydrationWarning data-dynamic={clientValue} />",
+    },
+  },
+  NuxtComponent: {
+    "text-mismatch": {
+      advice:
+        "Use `<ClientOnly>` wrapper or check `process.client` to prevent Nuxt SSR/CSR text mismatches.",
+      snippet:
+        "<ClientOnly>\n  <template #default>{{ clientValue }}</template>\n  <template #fallback>{{ serverFallback }}</template>\n</ClientOnly>",
+    },
+    "attribute-mismatch": {
+      advice: "Use `<ClientOnly>` or a `mounted` ref to suppress Nuxt attribute mismatches.",
+      snippet: "const mounted = ref(false);\nonMounted(() => { mounted.value = true; });",
+    },
+  },
   Unknown: {
     "text-mismatch": {
       advice:
@@ -138,6 +162,10 @@ function isTimestampValue(val: string): boolean {
 // ── FRAMEWORK-INTERNAL ATTRIBUTE PREFIXES TO IGNORE ──────────────────────────
 const IGNORED_ATTR_PREFIXES = [
   "data-reactid",
+  "data-nextjs-",
+  "data-n-head",
+  "data-hid",
+  "data-server-rendered",
   "data-react-",
   "data-v-",
   "data-sveltekit-",
@@ -187,6 +215,12 @@ export function getComponentName(el: Element): string | null {
   if (keys.some((k) => k.startsWith("__svelte"))) return "SvelteComponent";
   // SolidJS: leaves _$owner on reactive nodes
   if ((el as any)._$owner !== undefined) return "SolidComponent";
+  // Next.js: sets __NEXT_DATA__ on window and data-nextjs-* attributes
+  if (el.closest("[data-nextjs-scroll-focus-boundary]") || (typeof window !== "undefined" && (window as any).__NEXT_DATA__))
+    return "NextComponent";
+  // Nuxt: sets __nuxt on window and data-server-rendered on root
+  if (el.hasAttribute("data-server-rendered") || (typeof window !== "undefined" && (window as any).__nuxt))
+    return "NuxtComponent";
   return null;
 }
 
@@ -386,3 +420,4 @@ export async function detectMismatchesAsync(
 
   return mismatches;
 }
+
