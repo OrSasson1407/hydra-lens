@@ -1,51 +1,48 @@
-{
-  "name": "hydra-lens-monorepo",
-  "private": true,
-  "scripts": {
-    "ci:local": "pnpm install && pnpm audit --audit-level=high --prod && pnpm run typecheck && pnpm run format:check && pnpm run lint && pnpm run build && pnpm run test:all",
-    "build:extension": "pnpm --filter hydra-lens-extension build",
-    "build:core": "pnpm --filter @hydra-lens/core build",
-    "build": "pnpm build:core && pnpm build:extension",
-    "test": "pnpm run test:unit && pnpm run test:integration",
-    "test:unit": "vitest run .unit.test.ts",
-    "test:integration": "vitest run .integration.test.ts",
-    "test:fuzz": "vitest run .fuzz.test.ts",
-    "test:security": "vitest run .sec.test.ts",
-    "test:bench": "vitest bench --run",
-    "test:e2e:cli": "playwright test --config=packages/cli/playwright.config.ts",
-    "test:e2e:extension": "playwright test --config=packages/extension/playwright.config.ts",
-    "test:e2e:xss": "playwright test --config=packages/extension/playwright.config.ts packages/extension/tests/security",
-    "test:system": "playwright test tests/system",
-    "test:mutate": "stryker run",
-    "test:all": "pnpm run test:unit && pnpm run test:integration && pnpm run test:security && pnpm run test:e2e:cli && pnpm run test:e2e:extension && pnpm run test:system",
-    "test:insane": "pnpm run test:all && pnpm run test:fuzz && pnpm run test:bench && pnpm run test:mutate",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "typecheck": "tsc --build"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.0.0",
-    "@playwright/test": "^1.60.0",
-    "@stryker-mutator/core": "^8.0.0",
-    "@stryker-mutator/vitest-runner": "^8.0.0",
-    "@types/node": "^25.9.1",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
-    "@vitest/ui": "^4.1.8",
-    "fast-check": "^3.0.0",
-    "globals": "^15.0.0",
-    "jsdom": "^25.0.1",
-    "prettier": "^3.0.0",
-    "typescript": "^5.0.0",
-    "vite": "^6.0.0",
-    "vitest": "^4.1.8"
-  },
-  "overrides": {
-    "tmp": "^0.2.6"
-  },
-  "resolutions": {
-    "tmp": "^0.2.6"
-  }
+﻿{
+    "name":  "hydra-lens-monorepo",
+    "private":  true,
+    "scripts":  {
+                    "ci:local":  "pnpm install \u0026\u0026 pnpm audit --audit-level=high --prod \u0026\u0026 pnpm run typecheck \u0026\u0026 pnpm run format:check \u0026\u0026 pnpm run lint \u0026\u0026 pnpm run build \u0026\u0026 pnpm run test:all",
+                    "build:extension":  "pnpm --filter hydra-lens-extension build",
+                    "build:core":  "pnpm --filter @hydra-lens/core build",
+                    "build":  "pnpm build:core \u0026\u0026 pnpm build:extension",
+                    "test":  "pnpm run test:unit \u0026\u0026 pnpm run test:integration",
+                    "test:unit":  "vitest run .unit.test.ts",
+                    "test:integration":  "vitest run .integration.test.ts",
+                    "test:fuzz":  "vitest run .fuzz.test.ts",
+                    "test:security":  "vitest run .sec.test.ts",
+                    "test:bench":  "vitest bench --run",
+                    "test:e2e:cli":  "playwright test --config=packages/cli/playwright.config.ts",
+                    "test:e2e:extension":  "playwright test --config=packages/extension/playwright.config.ts",
+                    "test:e2e:xss":  "playwright test --config=packages/extension/playwright.config.ts packages/extension/tests/security",
+                    "test:system":  "playwright test tests/system",
+                    "test:mutate":  "stryker run",
+                    "test:all":  "pnpm run test:unit \u0026\u0026 pnpm run test:integration \u0026\u0026 pnpm run test:security \u0026\u0026 pnpm run test:e2e:cli \u0026\u0026 pnpm run test:e2e:extension \u0026\u0026 pnpm run test:system",
+                    "test:insane":  "pnpm run test:all \u0026\u0026 pnpm run test:fuzz \u0026\u0026 pnpm run test:bench \u0026\u0026 pnpm run test:mutate",
+                    "lint":  "eslint .",
+                    "lint:fix":  "eslint . --fix",
+                    "format":  "prettier --write .",
+                    "format:check":  "prettier --check .",
+                    "typecheck":  "tsc --build"
+                },
+    "devDependencies":  {
+                            "@eslint/js":  "^9.0.0",
+                            "@playwright/test":  "^1.60.0",
+                            "@stryker-mutator/core":  "^8.0.0",
+                            "@stryker-mutator/vitest-runner":  "^8.0.0",
+                            "@types/node":  "^25.9.1",
+                            "@typescript-eslint/eslint-plugin":  "^8.0.0",
+                            "@typescript-eslint/parser":  "^8.0.0",
+                            "@vitest/ui":  "^4.1.8",
+                            "fast-check":  "^3.0.0",
+                            "globals":  "^15.0.0",
+                            "jsdom":  "^25.0.1",
+                            "prettier":  "^3.0.0",
+                            "typescript":  "^5.0.0",
+                            "vite":  "^6.0.0",
+                            "vitest":  "^4.1.8"
+                        },
+    "overrides":  {
+                      "tmp":  "^0.2.6"
+                  }
 }
