@@ -1,12 +1,14 @@
 ﻿{
   "version": "2.0.0",
   "tasks": [
+
+    // ── Individual build tasks ────────────────────────────────────────────────
     {
       "label": "Build: core",
       "type": "shell",
       "command": "pnpm build:core",
       "group": "build",
-      "presentation": { "reveal": "always", "panel": "shared" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false },
       "problemMatcher": ["$tsc"]
     },
     {
@@ -15,7 +17,7 @@
       "command": "pnpm build:extension",
       "group": "build",
       "dependsOn": "Build: core",
-      "presentation": { "reveal": "always", "panel": "shared" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false },
       "problemMatcher": ["$tsc"]
     },
     {
@@ -23,51 +25,190 @@
       "type": "shell",
       "command": "pnpm build",
       "group": { "kind": "build", "isDefault": true },
-      "presentation": { "reveal": "always", "panel": "shared" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false },
       "problemMatcher": ["$tsc"]
     },
+
+    // ── Individual test tasks ─────────────────────────────────────────────────
     {
       "label": "Test: unit",
       "type": "shell",
       "command": "pnpm test:unit",
       "group": { "kind": "test", "isDefault": true },
-      "presentation": { "reveal": "always", "panel": "shared" }
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
     },
     {
       "label": "Test: integration",
       "type": "shell",
       "command": "pnpm test:integration",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "shared" }
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
     },
     {
-      "label": "Test: all",
+      "label": "Test: security",
       "type": "shell",
-      "command": "pnpm test:all",
+      "command": "pnpm test:security",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "shared" }
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
     },
     {
       "label": "Test: e2e CLI",
       "type": "shell",
       "command": "pnpm test:e2e:cli",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "shared" }
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
     },
     {
       "label": "Test: e2e extension",
       "type": "shell",
       "command": "pnpm test:e2e:extension",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "shared" }
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
     },
+    {
+      "label": "Test: XSS security (e2e)",
+      "type": "shell",
+      "command": "pnpm test:e2e:xss",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+    {
+      "label": "Test: system",
+      "type": "shell",
+      "command": "pnpm test:system",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+    {
+      "label": "Test: fuzz",
+      "type": "shell",
+      "command": "pnpm test:fuzz",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+    {
+      "label": "Test: benchmarks",
+      "type": "shell",
+      "command": "pnpm test:bench",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+
+    // ── Lint / format / typecheck ─────────────────────────────────────────────
     {
       "label": "Lint",
       "type": "shell",
       "command": "pnpm lint",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "shared" },
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false },
       "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Lint: fix",
+      "type": "shell",
+      "command": "pnpm lint:fix",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Format: check",
+      "type": "shell",
+      "command": "pnpm format:check",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+    {
+      "label": "Format: fix",
+      "type": "shell",
+      "command": "pnpm format",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+    {
+      "label": "Typecheck",
+      "type": "shell",
+      "command": "pnpm typecheck",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false },
+      "problemMatcher": ["$tsc"]
+    },
+
+    // ── Local CI pipeline (mirrors GitHub Actions gate order) ─────────────────
+    // Gate 1: static checks (fast — runs first, fails fast)
+    {
+      "label": "CI: 1 - Lint + Typecheck + Format",
+      "type": "shell",
+      "command": "pnpm typecheck && pnpm lint && pnpm format:check && echo \"\n✅ Gate 1 passed: lint / typecheck / format\"",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "problemMatcher": ["$tsc", "$eslint-stylish"]
+    },
+
+    // Gate 2: unit + integration + security tests
+    {
+      "label": "CI: 2 - Unit + Integration + Security tests",
+      "type": "shell",
+      "command": "pnpm test:unit && pnpm test:integration && pnpm test:security && echo \"\n✅ Gate 2 passed: unit / integration / security tests\"",
+      "dependsOn": "CI: 1 - Lint + Typecheck + Format",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "problemMatcher": []
+    },
+
+    // Gate 3: build (must succeed before e2e)
+    {
+      "label": "CI: 3 - Build",
+      "type": "shell",
+      "command": "pnpm build && echo \"\n✅ Gate 3 passed: build\"",
+      "dependsOn": "CI: 2 - Unit + Integration + Security tests",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "problemMatcher": ["$tsc"]
+    },
+
+    // Gate 4: e2e + system tests (requires build)
+    {
+      "label": "CI: 4 - E2E + System tests",
+      "type": "shell",
+      "command": "pnpm test:e2e:cli && pnpm test:e2e:extension && pnpm test:system && echo \"\n✅ Gate 4 passed: e2e / system tests\"",
+      "dependsOn": "CI: 3 - Build",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "problemMatcher": []
+    },
+
+    // Full pipeline — runs all 4 gates in order, stops on first failure
+    {
+      "label": "CI: Full pipeline (local)",
+      "dependsOn": [
+        "CI: 1 - Lint + Typecheck + Format",
+        "CI: 2 - Unit + Integration + Security tests",
+        "CI: 3 - Build",
+        "CI: 4 - E2E + System tests"
+      ],
+      "dependsOrder": "sequence",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false }
+    },
+
+    // Quick smoke check — lint + unit only, no build, no e2e (use before every commit)
+    {
+      "label": "CI: Quick smoke check (pre-commit)",
+      "type": "shell",
+      "command": "pnpm typecheck && pnpm lint && pnpm test:unit && echo \"\n✅ Smoke check passed — safe to commit\"",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "problemMatcher": ["$tsc", "$eslint-stylish"]
+    },
+
+    // Security-only scan (mirrors the scheduled security-scan.yml workflow)
+    {
+      "label": "CI: Security scan (local)",
+      "type": "shell",
+      "command": "pnpm build && npx serve demo-app -p 3000 & sleep 2 && node packages/cli/dist/index.js --security-only --threshold security --output report.json http://localhost:3000; kill %1 2>$null; echo \"\n✅ Security scan complete — see report.json\"",
+      "group": "test",
+      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true }
     }
   ]
 }

@@ -7,11 +7,16 @@
         background: #1e1e1e;
         color: #d4d4d4;
         padding: 10px;
+        margin: 0;
       }
       .toolbar {
         padding-bottom: 10px;
         border-bottom: 1px solid #333;
         margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
       }
       button {
         background: #0e639c;
@@ -19,49 +24,37 @@
         border: none;
         padding: 5px 10px;
         cursor: pointer;
+        font-size: 12px;
       }
-      button:hover {
-        background: #1177bb;
-      }
-      #results {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-      .issue {
-        background: #252526;
-        padding: 10px;
-        border-left: 3px solid #d4d4d4;
-      }
-      .issue.security {
-        border-color: #ef4444;
-      }
-      .issue.critical {
-        border-color: #f97316;
-      }
-      .issue.warning {
-        border-color: #eab308;
-      }
+      button:hover { background: #1177bb; }
+      button.secondary { background: #3a3a3a; }
+      button.secondary:hover { background: #555; }
+      #results { display: flex; flex-direction: column; gap: 8px; }
+      .issue { background: #252526; padding: 10px; border-left: 3px solid #d4d4d4; }
+      .issue.security { border-color: #ef4444; }
+      .issue.critical  { border-color: #f97316; }
+      .issue.warning   { border-color: #eab308; }
+      .issue.info      { border-color: #3b82f6; }
+      .progress { color: #60a5fa; font-style: italic; padding: 8px 0; }
+      select { background: #3a3a3a; color: #d4d4d4; border: 1px solid #555; padding: 4px; font-size: 12px; }
     </style>
   </head>
   <body>
     <div class="toolbar">
       <button id="refreshBtn">Rescan Page</button>
-      <button id="clearIgnoreBtn">Clear Ignore List</button>
-      <button id="copyMdBtn">Copy as Markdown</button>
-      <span style="margin-left: 10px"
-        >Severity:
+      <button id="copyMdBtn" class="secondary">Copy as Markdown</button>
+      <button id="clearIgnoreBtn" class="secondary">Clear Ignore List</button>
+      <span style="margin-left:4px">Severity:
         <select id="severityFilter">
           <option value="all">All</option>
-          <option value="security">Security Only</option>
-          <option value="critical">Critical & Above</option>
+          <option value="security">Security only</option>
+          <option value="critical">Critical &amp; above</option>
+          <option value="warning">Warning &amp; above</option>
+          <option value="info">Info (all)</option>
         </select>
       </span>
     </div>
-    <div id="results">Waiting for scan...</div>
+    <div id="results" class="progress">Waiting for scan...</div>
     <script type="module" src="panel.ts"></script>
   </body>
 </html>
-
-
-
