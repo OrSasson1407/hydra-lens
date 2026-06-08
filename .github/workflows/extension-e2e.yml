@@ -1,4 +1,4 @@
-﻿name: Extension E2E
+name: Extension E2E
 
 on:
   pull_request:
@@ -34,8 +34,11 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm exec playwright install chromium --with-deps
 
+      - name: Install Xvfb
+        run: sudo apt-get install -y xvfb
+
       - name: Run extension e2e
-        run: pnpm test:e2e:extension --retries 2
+        run: xvfb-run --auto-servernum pnpm test:e2e:extension --retries 2
 
       - name: Upload report on failure
         if: failure()
@@ -44,3 +47,4 @@ jobs:
           name: playwright-report-extension
           path: playwright-report/extension/
           retention-days: 7
+
