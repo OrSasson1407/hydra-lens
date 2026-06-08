@@ -1,36 +1,29 @@
 {
-    "compilerOptions":  {
-                            "target":  "ESNext",
-                            "module":  "ESNext",
-                            "moduleResolution":  "bundler",
-                            "lib":  [
-                                        "DOM",
-                                        "DOM.Iterable",
-                                        "ESNext"
-                                    ],
-                            "types":  [
-                                          "chrome"
-                                      ],
-                            "strict":  true,
-                            "esModuleInterop":  true,
-                            "skipLibCheck":  true,
-                            "forceConsistentCasingInFileNames":  true,
-                            "noEmit":  false,
-                            "composite":  true,
-                            "declaration":  true,
-                            "outDir":  "./dist",
-                            "rootDir":  "./src"
-                        },
-    "include":  [
-                    "src/**/*"
-                ],
-    "exclude":  [
-                    "node_modules",
-                    "dist"
-                ],
-    "references":  [
-                       {
-                           "path":  "../core"
-                       }
-                   ]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["chrome"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "composite": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts",
+    "src/**/__tests__/**"
+  ],
+  "references": [
+    { "path": "../core" }
+  ]
 }
