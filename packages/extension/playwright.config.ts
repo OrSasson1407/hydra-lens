@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig } from "@playwright/test";
 import path from "path";
 
 const extensionPath = path.resolve(__dirname, "dist");
@@ -7,7 +7,7 @@ export default defineConfig({
   testDir: "./tests",
   timeout: 60_000,
   retries: process.env.CI ? 2 : 0,
-  workers: 1, // Extension tests must be serial — only one Chrome instance can load the extension
+  workers: 1,
 
   reporter: [
     ["list"],
@@ -16,21 +16,31 @@ export default defineConfig({
   outputDir: "../../test-results/extension",
 
   use: {
-    // Chromium with extension loaded
     browserName: "chromium",
-    channel: "chrome",
-    headless: false, // Chrome extensions require non-headless mode in Playwright
-    launchOptions: {
-      args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
-    },
     trace: "on-first-retry",
     screenshot: "only-on-failure",
     baseURL: "http://localhost:3001",
   },
 
   projects: [
-    { name: "e2e", testMatch: "e2e/**/*.spec.ts" },
-    { name: "security", testMatch: "security/**/*.spec.ts" },
+    {
+      name: "e2e",
+      testMatch: "e2e/**/*.spec.ts",
+      use: {
+        channel: "chrome",
+        headless: false,
+        launchOptions: {
+          args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+        },
+      },
+    },
+    {
+      name: "security",
+      testMatch: "security/**/*.spec.ts",
+      use: {
+        headless: true,
+      },
+    },
   ],
 
   webServer: {
@@ -40,4 +50,3 @@ export default defineConfig({
     timeout: 30_000,
   },
 });
-
