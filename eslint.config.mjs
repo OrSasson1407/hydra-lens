@@ -23,7 +23,7 @@ export default [
   // 3. TypeScript source files (Type-Aware)
   {
     files: ["packages/*/src/**/*.ts"],
-    ignores: ["**/*.test.ts", "**/*.spec.ts", "**/__tests__/**"], // Exclude tests from strict type-aware parsing
+    ignores: ["**/*.test.ts", "**/*.spec.ts", "**/__tests__/**", "**/test-setup.ts"], // Exclude tests from strict type-aware parsing
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -92,3 +92,4 @@ export default [
     },
   },
 ];
+
