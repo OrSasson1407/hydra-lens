@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "declaration": true,
+    "declarationMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
@@ -13,10 +14,7 @@
     "forceConsistentCasingInFileNames": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "types": ["chrome"],
-    "noEmit": false,
-    "paths": {
-      "@hydra-lens/core": ["../core/src/index.ts"]
-    }
+    "noEmit": false
   },
   "include": ["src/**/*"],
   "exclude": [
@@ -27,7 +25,5 @@
     "src/**/__tests__/**",
     "src/test-setup.ts"
   ],
-  "references": [
-    { "path": "../core" }
-  ]
+  "references": [{ "path": "../core" }]
 }
