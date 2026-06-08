@@ -23,7 +23,7 @@
                     "lint:fix":  "eslint . --fix",
                     "format":  "prettier --write .",
                     "format:check":  "prettier --check .",
-                    "typecheck":  "tsc --build"
+                    "typecheck": "pnpm build:core && tsc --build"
                 },
     "devDependencies":  {
                             "@eslint/js":  "^9.0.0",
@@ -46,4 +46,6 @@
                       "tmp":  "^0.2.6"
                   }
 }
+
+
 
