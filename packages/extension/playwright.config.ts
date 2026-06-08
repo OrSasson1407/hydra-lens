@@ -1,4 +1,4 @@
-﻿import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 import path from "path";
 
 const extensionPath = path.resolve(__dirname, "dist");
@@ -7,7 +7,7 @@ export default defineConfig({
   testDir: "./tests",
   timeout: 60_000,
   retries: process.env.CI ? 2 : 0,
-  workers: 1, // Extension tests must be serial — only one Chrome instance can load the extension
+  workers: 1, // Extension tests must be serial � only one Chrome instance can load the extension
 
   reporter: [
     ["list"],
@@ -40,3 +40,4 @@ export default defineConfig({
     timeout: 30_000,
   },
 });
+
