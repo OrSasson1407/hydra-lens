@@ -65,7 +65,8 @@ function renderResults(filter = "all") {
                 if (selector && !ignored.includes(selector))
                     ignored.push(selector);
                 chrome.storage.local.set({ ignoredSelectors: ignored }, () => {
-                    e.target.textContent = "Ignored";
+                    currentMismatches = currentMismatches.filter((m) => m.selector !== selector);
+                    renderResults(document.getElementById("severityFilter").value);
                 });
             });
         });
@@ -88,6 +89,12 @@ function restoreResults() {
 }
 // ?? Message listener ??????????????????????????????????????????????????????????
 chrome.runtime.onMessage.addListener((msg) => {
+    if (msg.type === "HYDRALENS_PROGRESS") {
+        const container = document.getElementById("results");
+        container.innerHTML = "";
+        const status = createEl("div", { style: "color:#60a5fa;font-style:italic;" }, msg.payload.status);
+        container.appendChild(status);
+    }
     if (msg.type === "HYDRALENS_RESULTS") {
         currentMismatches = msg.payload.mismatches;
         saveResults(currentMismatches);
@@ -108,6 +115,16 @@ document.getElementById("refreshBtn")?.addEventListener("click", () => {
 });
 document.getElementById("severityFilter")?.addEventListener("change", (e) => {
     renderResults(e.target.value);
+});
+document.getElementById("copyMdBtn")?.addEventListener("click", () => {
+    if (currentMismatches.length === 0) {
+        alert("No results to copy.");
+        return;
+    }
+    const lines = ["# HydraLens Report\n", "| Severity | Component | Selector | Reason | Advice |", "|---|---|---|---|---|"];
+    for (const m of currentMismatches)
+        lines.push(`| ${m.severity} | ${m.componentName ?? "Unknown"} | \`${m.selector}\` | ${m.severityReason} | ${m.advice} |`);
+    navigator.clipboard.writeText(lines.join("\n")).then(() => alert("Markdown copied to clipboard!"));
 });
 document.getElementById("clearIgnoreBtn")?.addEventListener("click", () => {
     chrome.storage.local.set({ ignoredSelectors: [] }, () => alert("Ignore list cleared!"));

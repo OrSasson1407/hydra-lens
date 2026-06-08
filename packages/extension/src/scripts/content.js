@@ -92,18 +92,33 @@ async function runHydraLens() {
         console.log("[HydraLens] Scan already in progress.");
         return;
     }
-    clearOverlays(); // synchronous � if this throws, isScanning stays false (correct)
+    function sendProgress(status) {
+        chrome.runtime.sendMessage({ type: "HYDRALENS_PROGRESS", payload: { status } }).catch(() => { });
+    }
+    clearOverlays(); // synchronous ן¿½ if this throws, isScanning stays false (correct)
     isScanning = true;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
     try {
+        sendProgress("Fetching server HTML...");
         const response = await fetch(window.location.href, {
             cache: "no-store",
             signal: controller.signal,
         });
+        // Auth-redirect guard: if the server redirected us to a different URL
+        // (e.g. a login page), the fetched HTML is not the real SSR output.
+        if (response.url && response.url !== window.location.href) {
+            throw new Error(`Server redirected to ${response.url} — page may require authentication. Scan aborted to avoid false positives.`);
+        }
         const serverHTML = await response.text();
+        // Secondary guard: detect a login form in the fetched HTML
+        if (/<input[^>]+type=["\x27]password["\x27]/i.test(serverHTML)) {
+            throw new Error("Fetched HTML appears to be a login page. Scan aborted — authenticate first or use the CLI with --auth-state.");
+        }
         clearTimeout(timeoutId);
+        sendProgress("Waiting for client render...");
         await new Promise((resolve) => setTimeout(resolve, 800));
+        sendProgress("Analysing DOM for mismatches...");
         const allMismatches = await detectMismatchesAsync(serverHTML, document);
         chrome.storage.local.get(["ignoredSelectors"], (res) => {
             const ignored = res.ignoredSelectors ?? [];
