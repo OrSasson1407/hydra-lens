@@ -2,8 +2,8 @@
   "compilerOptions": {
     "composite": true,
     "target": "ES2020",
-    "module": "Node16",
-    "moduleResolution": "node16",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "declaration": true,
     "sourceMap": true,
     "lib": ["ES2020", "DOM"],
@@ -18,4 +18,3 @@
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
   "references": [{ "path": "../core" }]
 }
-
