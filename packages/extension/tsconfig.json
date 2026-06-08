@@ -1,19 +1,22 @@
 {
   "compilerOptions": {
+    "composite": true,
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "types": ["chrome"],
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": ["chrome"],
     "noEmit": false,
-    "composite": true,
-    "declaration": true,
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "paths": {
+      "@hydra-lens/core": ["../core/src/index.ts"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": [
@@ -21,7 +24,8 @@
     "dist",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-    "src/**/__tests__/**"
+    "src/**/__tests__/**",
+    "src/test-setup.ts"
   ],
   "references": [
     { "path": "../core" }

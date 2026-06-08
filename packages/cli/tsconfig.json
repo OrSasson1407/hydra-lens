@@ -1,31 +1,25 @@
 {
-    "extends":  "../../tsconfig.json",
-    "compilerOptions":  {
-                            "composite":  true,
-                            "target":  "ES2020",
-                            "module":  "CommonJS",
-                            "moduleResolution":  "node",
-                            "declaration":  true,
-                            "sourceMap":  true,
-                            "lib":  [
-                                        "ES2020",
-                                        "DOM"
-                                    ],
-                            "outDir":  "./dist",
-                            "rootDir":  "./src"
-                        },
-    "include":  [
-                    "src/**/*"
-                ],
-    "exclude":  [
-                    "node_modules",
-                    "dist",
-                    "**/*.test.ts",
-                    "**/*.spec.ts"
-                ],
-    "references":  [
-                       {
-                           "path":  "../core"
-                       }
-                   ]
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2020",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": true,
+    "lib": ["ES2020", "DOM"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@hydra-lens/core": ["../core/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
+  "references": [
+    { "path": "../core" }
+  ]
 }

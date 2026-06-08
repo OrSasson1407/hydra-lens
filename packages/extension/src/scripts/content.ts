@@ -153,7 +153,7 @@ async function runHydraLens(): Promise<void> {
 
     chrome.storage.local.get(["ignoredSelectors"], (res) => {
       const ignored: string[] = (res.ignoredSelectors as string[]) ?? [];
-      const activeMismatches = allMismatches.filter((m) => !ignored.includes(m.selector));
+      const activeMismatches = allMismatches.filter((m: Mismatch) => !ignored.includes(m.selector));
 
       chrome.runtime
         .sendMessage({
@@ -162,7 +162,7 @@ async function runHydraLens(): Promise<void> {
         })
         .catch(() => {});
 
-      activeMismatches.forEach((mismatch) => {
+      activeMismatches.forEach((mismatch: Mismatch) => {
         const clientEl = document.querySelector(mismatch.selector) as HTMLElement | null;
         if (clientEl) drawOverlay(clientEl, mismatch);
       });
@@ -188,5 +188,6 @@ chrome.runtime.onMessage.addListener((msg) => {
     isScanning = false;
   }
 });
+
 
 
