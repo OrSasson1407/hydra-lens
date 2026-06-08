@@ -11,7 +11,10 @@ function getShadowRoot() {
             // shadowRoot on the host is permanent once attached, so we can recover it.
             shadowRoot = host.shadowRoot;
         }
-        return shadowRoot;
+        if (!host.shadowRoot) {
+            host.attachShadow({ mode: 'open' });
+        }
+        return host.shadowRoot;
     }
     host = document.createElement("div");
     host.id = HOST_ID;
@@ -95,7 +98,7 @@ async function runHydraLens() {
     function sendProgress(status) {
         chrome.runtime.sendMessage({ type: "HYDRALENS_PROGRESS", payload: { status } }).catch(() => { });
     }
-    clearOverlays(); // synchronous ן¿½ if this throws, isScanning stays false (correct)
+    clearOverlays(); // synchronous � if this throws, isScanning stays false (correct)
     isScanning = true;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
@@ -108,12 +111,12 @@ async function runHydraLens() {
         // Auth-redirect guard: if the server redirected us to a different URL
         // (e.g. a login page), the fetched HTML is not the real SSR output.
         if (response.url && response.url !== window.location.href) {
-            throw new Error(`Server redirected to ${response.url} — page may require authentication. Scan aborted to avoid false positives.`);
+            throw new Error(`Server redirected to ${response.url} � page may require authentication. Scan aborted to avoid false positives.`);
         }
         const serverHTML = await response.text();
         // Secondary guard: detect a login form in the fetched HTML
         if (/<input[^>]+type=["\x27]password["\x27]/i.test(serverHTML)) {
-            throw new Error("Fetched HTML appears to be a login page. Scan aborted — authenticate first or use the CLI with --auth-state.");
+            throw new Error("Fetched HTML appears to be a login page. Scan aborted � authenticate first or use the CLI with --auth-state.");
         }
         clearTimeout(timeoutId);
         sendProgress("Waiting for client render...");

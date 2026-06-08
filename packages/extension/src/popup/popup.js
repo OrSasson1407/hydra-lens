@@ -12,7 +12,7 @@ toggle.addEventListener("change", (e) => {
 document.getElementById("scanNowBtn")?.addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         if (tabs[0]?.id) {
-            chrome.tabs.sendMessage(tabs[0].id, { type: "HYDRALENS_RUN" });
+            chrome.tabs.sendMessage(tabs[0].id, { type: "HYDRALENS_RUN" }).catch(() => { });
             window.close();
         }
     });
