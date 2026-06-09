@@ -1,4 +1,4 @@
-﻿export type Severity = "critical" | "warning" | "info" | "security";
+export type Severity = "critical" | "warning" | "info" | "security";
 
 export interface Mismatch {
   selector: string;
@@ -280,6 +280,9 @@ export function classifyAttributeMismatch(
     if (pattern.test(serverVal) || pattern.test(clientVal)) {
       return { severity: "security", reason: `Potential ${label} exposed in attribute` };
     }
+  }
+  if (looksLikeSecret(attrName, serverVal) || looksLikeSecret(attrName, clientVal)) {
+    return { severity: "security", reason: "High-entropy value in sensitive attribute (possible undeclared secret)" };
   }
   if (attrName.startsWith("aria-") || attrName === "role") {
     return {
