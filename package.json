@@ -1,10 +1,10 @@
-{
+﻿{
     "name":  "hydra-lens-monorepo",
     "private":  true,
     "scripts":  {
                     "ci:local":  "pnpm install \u0026\u0026 pnpm audit --audit-level=high --prod \u0026\u0026 pnpm run typecheck \u0026\u0026 pnpm run format:check \u0026\u0026 pnpm run lint \u0026\u0026 pnpm run build \u0026\u0026 pnpm run test:all",
                     "build:extension":  "pnpm --filter hydra-lens-extension build",
-                    "build:core":  "pnpm --filter @hydra-lens/core build",
+                    "build:core":  "pnpm --filter hydra-lens-core build",
                     "build":  "pnpm build:core \u0026\u0026 pnpm build:cli \u0026\u0026 pnpm build:extension",
                     "test":  "pnpm run test:unit \u0026\u0026 pnpm run test:integration",
                     "test:unit":  "vitest run .unit.test.ts",
@@ -24,7 +24,7 @@
                     "format":  "prettier --write .",
                     "format:check":  "prettier --check .",
                     "typecheck":  "pnpm build:core \u0026\u0026 tsc --build",
-                    "build:cli":  "pnpm --filter @hydra-lens/cli build"
+                    "build:cli":  "pnpm --filter hydra-lens-cli build"
                 },
     "devDependencies":  {
                             "@eslint/js":  "^9.0.0",

@@ -21,8 +21,8 @@ import { execSync } from "child_process";
     // Network unavailable or npm not found - silently skip
   }
 })();
-import type { Mismatch } from "@hydra-lens/core";
-import { detectMismatches as _detectMismatches } from "@hydra-lens/core";
+import type { Mismatch } from "hydra-lens-core";
+import { detectMismatches as _detectMismatches } from "hydra-lens-core";
 import * as fs from "fs";
 import * as path from "path";
 

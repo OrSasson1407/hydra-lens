@@ -1,5 +1,5 @@
 ﻿{
-    "name":  "@hydra-lens/cli",
+    "name":  "hydra-lens-cli",
     "version":  "1.0.0",
     "main":  "dist/index.js",
     "scripts":  {
@@ -7,8 +7,8 @@
                     "test:e2e":  "playwright test"
                 },
     "dependencies":  {
-                         "@hydra-lens/core":  "workspace:*",
-                         "playwright":  "^1.40.0"
+                         "playwright":  "^1.40.0",
+                         "hydra-lens-core":  "workspace:*"
                      },
     "devDependencies":  {
                             "@playwright/test":  "^1.40.0",

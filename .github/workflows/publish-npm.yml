@@ -45,7 +45,7 @@ jobs:
         run: cd packages/core && pnpm pack --dry-run || true
 
       - name: Publish to npm (with provenance)
-        run: pnpm --filter @hydra-lens/core publish --no-git-checks --provenance --access public
+        run: pnpm --filter hydra-lens-core publish --no-git-checks --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -56,6 +56,6 @@ jobs:
         run: cd packages/cli && pnpm pack --dry-run || true
 
       - name: Publish CLI to npm (with provenance)
-        run: pnpm --filter @hydra-lens/cli publish --no-git-checks --provenance --access public
+        run: pnpm --filter hydra-lens-cli publish --no-git-checks --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
