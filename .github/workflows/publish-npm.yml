@@ -1,4 +1,4 @@
-﻿# Dedicated lightweight publish workflow.
+# Dedicated lightweight publish workflow.
 # Triggered only after the full CI suite passes on a version tag.
 # Keeps publish logic separate from the release asset packaging in release.yml.
 
@@ -46,5 +46,16 @@ jobs:
 
       - name: Publish to npm (with provenance)
         run: pnpm --filter @hydra-lens/core publish --no-git-checks --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Build CLI package
+        run: pnpm build:cli
+
+      - name: Verify CLI package contents
+        run: pnpm --filter @hydra-lens/cli pack --dry-run
+
+      - name: Publish CLI to npm (with provenance)
+        run: pnpm --filter @hydra-lens/cli publish --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

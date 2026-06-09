@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 All notable changes to HydraLens are documented here.  
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
@@ -7,7 +7,16 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-_Changes merged but not yet released._
+### Fixed
+
+- `extension/content.ts`: added `credentials: "include"` to SSR fetch so authenticated dashboards are scanned correctly instead of returning a login redirect
+- `cli/index.ts`: sitemap parser now detects `<sitemapindex>` root and recursively fetches child sitemaps instead of treating their URLs as pages
+- `cli/package.json`: removed `private: true` and added `bin` field so `pnpm add -g @hydra-lens/cli` registers the `hydra-lens` executable
+- `cli/tsup.config.ts`: added `#!/usr/bin/env node` shebang banner; disabled source maps in CLI build
+- `root package.json`: `build:cli` added to build pipeline between core and extension
+- `extension/devtools.ts`: guard against scanning `chrome://`, `edge://`, and `about://` URLs which extensions are forbidden from inspecting
+- `core/index.ts`: Shannon entropy + attribute-name proximity check replaces the removed catch-all regex — high-entropy values in `key/token/secret/auth/pwd` attributes are flagged as security issues without false-positiving on base64 images
+- `cli/index.ts`: async update notifier checks npm registry on startup and prints a one-line hint when a newer version is available
 
 ---
 
@@ -66,6 +75,6 @@ _Changes merged but not yet released._
 
 - Overlay repositioning on scroll, window resize, and element resize
 
-[Unreleased]: https://github.com/your-org/hydra-lens/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/your-org/hydra-lens/compare/v0.5.0...v1.0.0
-[0.5.0]: https://github.com/your-org/hydra-lens/releases/tag/v0.5.0
+[Unreleased]: https://github.com/OrSasson1407/hydra-lens/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/OrSasson1407/hydra-lens/compare/v0.5.0...v1.0.0
+[0.5.0]: https://github.com/OrSasson1407/hydra-lens/releases/tag/v0.5.0

@@ -1,13 +1,13 @@
-﻿# HydraLens
+# HydraLens
 
-[![CI](https://github.com/your-org/hydra-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/your-org/hydra-lens/actions/workflows/ci.yml)
+[![CI](https://github.com/OrSasson1407/hydra-lens/actions/workflows/ci.yml/badge.svg)](https://github.com/OrSasson1407/hydra-lens/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/@hydra-lens/core)](https://www.npmjs.com/package/@hydra-lens/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **HydraLens** is a Chrome DevTools extension and headless CLI for debugging
 React, Vue, Svelte, Solid, and Angular hydration mismatches in real-time.
 
-> 📸 _Demo GIF placeholder — add `docs/assets/demo.gif` and update this line_
+> 💡 **Tip:** load `packages/extension/dist` as an unpacked extension in Chrome, open any Next.js or Nuxt site, and press **Alt+Shift+H** to trigger a scan.
 
 ---
 
@@ -15,8 +15,7 @@ React, Vue, Svelte, Solid, and Angular hydration mismatches in real-time.
 
 ```bash
 pnpm install
-pnpm build:core
-pnpm build:extension
+pnpm build
 ```
 
 Load `packages/extension/dist` as an **Unpacked Extension** in Chrome:  
