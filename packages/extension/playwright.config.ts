@@ -38,6 +38,7 @@ export default defineConfig({
       name: "security",
       testMatch: "security/**/*.spec.ts",
       use: {
+        channel: "chrome", // 👈 ADD THIS LINE
         headless: true,
       },
     },
