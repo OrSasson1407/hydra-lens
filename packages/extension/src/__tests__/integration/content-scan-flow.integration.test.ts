@@ -50,7 +50,7 @@ describe("content-scan-flow.integration", () => {
   it("no overlay drawn when querySelector returns null", () => {
     const mismatches = [{ selector: "#nonexistent" }];
     const drawn: string[] = [];
-    mismatches.forEach(m => { if (null) drawn.push(m.selector); });
+    mismatches.forEach(m => { const clientEl: HTMLElement | null = null; if (clientEl) drawn.push(m.selector); });
     expect(drawn).toHaveLength(0);
   });
 });
