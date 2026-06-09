@@ -1,3 +1,4 @@
+﻿import type { Mismatch } from "@hydra-lens/core";
 const HISTORY_KEY = "hydralens_scan_history";
 const MAX_HISTORY = 5;
 
@@ -5,7 +6,7 @@ interface ScanRecord {
   url: string;
   ts: number;
   total: number;
-  mismatches: any[];
+  mismatches: Mismatch[];
 }
 
 const toggle = document.getElementById("autoScanToggle") as HTMLInputElement;
@@ -28,9 +29,9 @@ document.getElementById("scanNowBtn")?.addEventListener("click", () => {
   });
 });
 
-function getLatestMismatches(cb: (mismatches: any[]) => void): void {
+function getLatestMismatches(cb: (mismatches: Mismatch[]) => void): void {
   chrome.storage.session.get(["hydralens_last_results"], (res) => {
-    cb((res.hydralens_last_results as any[]) ?? []);
+    cb((res.hydralens_last_results as Mismatch[]) ?? []);
   });
 }
 
@@ -104,3 +105,4 @@ chrome.runtime.onMessage.addListener((msg) => {
 });
 
 renderHistory();
+

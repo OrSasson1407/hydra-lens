@@ -1,4 +1,5 @@
 ﻿import { chromium, Browser } from "playwright";
+import type { Mismatch } from "@hydra-lens/core";
 import { detectMismatches as _detectMismatches } from "@hydra-lens/core";
 import * as fs from "fs";
 import * as path from "path";
@@ -55,7 +56,7 @@ async function fetchSitemapUrls(url: string): Promise<string[]> {
 // ?? Single page scan (uses a shared browser passed in) ???????????????????????
 interface ScanResult {
   url: string;
-  mismatches: any[];
+  mismatches: Mismatch[];
   durationMs: number;
   error?: string;
 }
@@ -79,8 +80,8 @@ async function scanPage(url: string, browser: Browser, coreBundle: string, stora
       { html: serverHTML, secOnly: securityOnly }
     );
     return { url, mismatches, durationMs: Date.now() - start };
-  } catch (e: any) {
-    return { url, mismatches: [], durationMs: Date.now() - start, error: e.message };
+  } catch (e: unknown) {
+    return { url, mismatches: [], durationMs: Date.now() - start, error: e instanceof Error ? e.message : String(e) };
   } finally {
     await page.close();
     await context.close();
@@ -133,7 +134,7 @@ async function main(): Promise<void> {
     if (result.error) {
       console.log(`ERROR: ${result.error}`);
     } else {
-      const failures = result.mismatches.filter((m: any) => failSeverities.includes(m.severity));
+      const failures = result.mismatches.filter((m: Mismatch) => failSeverities.includes(m.severity));
       console.log(
         `${result.mismatches.length} issues (${failures.length} blocking) in ${result.durationMs}ms`
       );
@@ -151,7 +152,7 @@ async function main(): Promise<void> {
   console.log(`${"URL".padEnd(50)} | Issues | Blocking`);
   console.log(`${"-".repeat(50)}-+--------+---------`);
   allResults.forEach((r) => {
-    const blocking = r.mismatches.filter((m: any) => failSeverities.includes(m.severity)).length;
+    const blocking = r.mismatches.filter((m: Mismatch) => failSeverities.includes(m.severity)).length;
     console.log(
       `${r.url.slice(0, 50).padEnd(50)} | ${String(r.mismatches.length).padEnd(6)} | ${blocking}`
     );
@@ -159,7 +160,7 @@ async function main(): Promise<void> {
 
   const totalIssues = allResults.reduce((s, r) => s + r.mismatches.length, 0);
   const totalBlocking = allResults.reduce(
-    (s, r) => s + r.mismatches.filter((m: any) => failSeverities.includes(m.severity)).length,
+    (s, r) => s + r.mismatches.filter((m: Mismatch) => failSeverities.includes(m.severity)).length,
     0
   );
   console.log(
@@ -186,5 +187,7 @@ main().catch((e) => {
   console.error("[HydraLens] Fatal:", e);
   process.exit(1);
 });
+
+
 
 

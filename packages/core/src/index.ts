@@ -203,6 +203,7 @@ function similarityScore(a: string, b: string): number {
 }
 
 // ── FRAMEWORK DETECTION ───────────────────────────────────────────────────────
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function getComponentName(el: Element): string | null {
   if (el.hasAttribute("data-reactroot") || el.closest("[data-reactroot]")) return "ReactComponent";
   const keys = Object.keys(el as any);
@@ -420,4 +421,5 @@ export async function detectMismatchesAsync(
 
   return mismatches;
 }
+
 

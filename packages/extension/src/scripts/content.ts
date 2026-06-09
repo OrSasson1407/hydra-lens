@@ -1,4 +1,4 @@
-import { detectMismatchesAsync, type Mismatch, type Severity } from "@hydra-lens/core";
+ï»¿import { detectMismatchesAsync, type Mismatch, type Severity } from "@hydra-lens/core";
 
 // ?? SHADOW DOM SETUP ??????????????????????????????????????????????????????????
 const HOST_ID = "hydra-lens-host";
@@ -106,7 +106,7 @@ function drawOverlay(element: HTMLElement, mismatch: Mismatch): void {
 async function runHydraLens(): Promise<void> {
   // FIX: guard is checked before any async work; flag is set only after clearOverlays succeeds
   if (isScanning) {
-    console.log("[HydraLens] Scan already in progress.");
+    console.warn("[HydraLens] Scan already in progress.");
     return;
   }
 
@@ -131,7 +131,7 @@ async function runHydraLens(): Promise<void> {
     // (e.g. a login page), the fetched HTML is not the real SSR output.
     if (response.url && response.url !== window.location.href) {
       throw new Error(
-        `Server redirected to ${response.url} — page may require authentication. Scan aborted to avoid false positives.`
+        `Server redirected to ${response.url} ï¿½ page may require authentication. Scan aborted to avoid false positives.`
       );
     }
 
@@ -140,7 +140,7 @@ async function runHydraLens(): Promise<void> {
     // Secondary guard: detect a login form in the fetched HTML
     if (/<input[^>]+type=["\x27]password["\x27]/i.test(serverHTML)) {
       throw new Error(
-        "Fetched HTML appears to be a login page. Scan aborted — authenticate first or use the CLI with --auth-state."
+        "Fetched HTML appears to be a login page. Scan aborted ï¿½ authenticate first or use the CLI with --auth-state."
       );
     }
     clearTimeout(timeoutId);
@@ -167,11 +167,11 @@ async function runHydraLens(): Promise<void> {
         if (clientEl) drawOverlay(clientEl, mismatch);
       });
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const message =
-      error.name === "AbortError"
+      (error as Error).name === "AbortError"
         ? "Fetch timed out (6s). The server may be too slow or streaming infinitely."
-        : (error.message ?? "Unknown error during scan.");
+        : ((error as Error).message ?? "Unknown error during scan.");
     console.error("[HydraLens]", message);
     chrome.runtime.sendMessage({ type: "HYDRALENS_ERROR", payload: { message } }).catch(() => {});
   } finally {
@@ -188,6 +188,7 @@ chrome.runtime.onMessage.addListener((msg) => {
     isScanning = false;
   }
 });
+
 
 
 

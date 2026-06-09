@@ -1,8 +1,9 @@
-﻿// FIX: results are persisted to chrome.storage.session so the panel shows
+﻿import type { Mismatch } from "@hydra-lens/core";
+// FIX: results are persisted to chrome.storage.session so the panel shows
 //      the last scan immediately when DevTools is opened after a scan ran.
 
 const STORAGE_KEY = "hydralens_last_results";
-let currentMismatches: any[] = [];
+let currentMismatches: Mismatch[] = [];
 
 // ?? Safe DOM text setter (replaces innerHTML to prevent XSS) ?????????????????
 function _setText(el: Element, text: string): void {
@@ -94,15 +95,15 @@ function renderResults(filter = "all"): void {
 }
 
 // ?? Persist & restore results across DevTools open/close ?????????????????????
-function saveResults(mismatches: any[]): void {
+function saveResults(mismatches: Mismatch[]): void {
   // chrome.storage.session is cleared when the browser session ends (tab close / browser restart)
   chrome.storage.session.set({ [STORAGE_KEY]: mismatches });
 }
 
 function restoreResults(): void {
   chrome.storage.session.get([STORAGE_KEY], (res) => {
-    if ((res[STORAGE_KEY] as any[])?.length) {
-      currentMismatches = res[STORAGE_KEY] as any[];
+    if ((res[STORAGE_KEY] as Mismatch[])?.length) {
+      currentMismatches = res[STORAGE_KEY] as Mismatch[];
       renderResults((document.getElementById("severityFilter") as HTMLSelectElement).value);
     }
   });
@@ -155,6 +156,7 @@ document.getElementById("clearIgnoreBtn")?.addEventListener("click", () => {
 
 // FIX: restore last scan results when the panel mounts (fixes blank-panel-on-open)
 restoreResults();
+
 
 
 

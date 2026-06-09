@@ -1,4 +1,5 @@
-﻿console.log("[HydraLens] Background worker started.");
+﻿// eslint-disable-next-line no-console
+console.log("[HydraLens] Background worker started.");
 
 function shouldAutoScan(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -39,3 +40,5 @@ chrome.runtime.onMessage.addListener((msg) => {
     chrome.storage.local.set({ autoScan: msg.enabled });
   }
 });
+
+
