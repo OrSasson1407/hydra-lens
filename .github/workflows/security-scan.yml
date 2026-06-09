@@ -1,4 +1,4 @@
-﻿name: Security Scan
+name: Security Scan
 
 on:
   schedule:
@@ -70,7 +70,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install chromium --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Playwright XSS hardening tests
         run: pnpm run test:e2e:xss || true

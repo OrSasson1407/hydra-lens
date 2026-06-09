@@ -99,10 +99,10 @@ jobs:
         run: pnpm build
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install chromium chrome --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Install Playwright browsers (security project)
-        run: pnpm exec playwright install chromium --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: CLI e2e tests
         run: pnpm test:e2e:cli
