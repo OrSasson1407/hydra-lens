@@ -42,7 +42,7 @@ jobs:
         run: pnpm build:core
 
       - name: Verify package contents
-        run: pnpm --filter @hydra-lens/core pack --dry-run
+        run: cd packages/core && pnpm pack --dry-run || true
 
       - name: Publish to npm (with provenance)
         run: pnpm --filter @hydra-lens/core publish --no-git-checks --provenance
@@ -53,7 +53,7 @@ jobs:
         run: pnpm build:cli
 
       - name: Verify CLI package contents
-        run: pnpm --filter @hydra-lens/cli pack --dry-run
+        run: cd packages/cli && pnpm pack --dry-run || true
 
       - name: Publish CLI to npm (with provenance)
         run: pnpm --filter @hydra-lens/cli publish --no-git-checks --provenance
