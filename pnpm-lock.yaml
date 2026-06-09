@@ -56,7 +56,7 @@ importers:
 
   packages/cli:
     dependencies:
-      '@hydra-lens/core':
+      hydra-lens-core:
         specifier: workspace:*
         version: link:../core
       playwright:
@@ -93,7 +93,7 @@ importers:
 
   packages/extension:
     dependencies:
-      '@hydra-lens/core':
+      hydra-lens-core:
         specifier: workspace:*
         version: link:../core
     devDependencies:

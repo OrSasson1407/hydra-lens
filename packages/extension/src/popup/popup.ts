@@ -1,4 +1,4 @@
-﻿import type { Mismatch } from "@hydra-lens/core";
+import type { Mismatch } from "hydra-lens-core";
 const HISTORY_KEY = "hydralens_scan_history";
 const MAX_HISTORY = 5;
 

@@ -1,4 +1,4 @@
-﻿import type { Mismatch } from "@hydra-lens/core";
+import type { Mismatch } from "hydra-lens-core";
 // FIX: results are persisted to chrome.storage.session so the panel shows
 //      the last scan immediately when DevTools is opened after a scan ran.
 
