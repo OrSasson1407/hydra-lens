@@ -1,21 +1,26 @@
 ﻿{
-  "name":  "@hydra-lens/cli",
-  "version":  "1.0.0",
-  "main":  "dist/index.js",
-  "scripts":  {
-                  "build":  "tsup src/index.ts",
-                  "test:e2e":  "playwright test"
-              },
-  "dependencies":  {
-                       "@hydra-lens/core":  "workspace:*",
-                       "playwright":  "^1.40.0"
-                   },
-  "devDependencies":  {
-                          "@playwright/test":  "^1.40.0",
-                          "tsup":  "^8.5.1"
-                      },
-  "bin":  {
-              "hydra-lens":  "dist/index.js"
-          },
-  "license":  "MIT"
+    "name":  "@hydra-lens/cli",
+    "version":  "1.0.0",
+    "main":  "dist/index.js",
+    "scripts":  {
+                    "build":  "tsup src/index.ts",
+                    "test:e2e":  "playwright test"
+                },
+    "dependencies":  {
+                         "@hydra-lens/core":  "workspace:*",
+                         "playwright":  "^1.40.0"
+                     },
+    "devDependencies":  {
+                            "@playwright/test":  "^1.40.0",
+                            "tsup":  "^8.5.1"
+                        },
+    "bin":  {
+                "hydra-lens":  "dist/index.js"
+            },
+    "license":  "MIT",
+    "files":  [
+                  "dist",
+                  "README.md",
+                  "LICENSE"
+              ]
 }
