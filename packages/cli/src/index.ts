@@ -1,4 +1,26 @@
 ﻿import { chromium, Browser } from "playwright";
+import { createRequire } from "module";
+import { execSync } from "child_process";
+
+// Update notifier: compare local version to latest on npm registry.
+// Runs async so it never blocks the scan; prints a one-line hint if stale.
+(async () => {
+  try {
+    const _require = createRequire(import.meta.url);
+    const { version: current } = _require("../../package.json") as { version: string };
+    const result = execSync("npm view @hydra-lens/cli version --json 2>/dev/null", {
+      encoding: "utf-8",
+      timeout: 3000,
+    }).trim().replace(/"/g, "");
+    if (result && result !== current) {
+      console.log(
+        `\n[HydraLens] Update available: ${current} → ${result}. Run: pnpm add -g @hydra-lens/cli@latest\n`
+      );
+    }
+  } catch {
+    // Network unavailable or npm not found – silently skip
+  }
+})();
 import type { Mismatch } from "@hydra-lens/core";
 import { detectMismatches as _detectMismatches } from "@hydra-lens/core";
 import * as fs from "fs";

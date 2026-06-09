@@ -134,8 +134,11 @@ export function getFix(
 }
 
 // ── SECRET PATTERNS ───────────────────────────────────────────────────────────
-// NOTE: The catch-all high-entropy pattern is intentionally removed — it produced
-// massive false-positive noise on base64 image data, font hashes, and minified JS.
+// Named patterns catch well-known token formats exactly.
+// The catch-all high-entropy regex was removed because it fired on base64 images,
+// font hashes, and minified JS.  Instead we use a Shannon entropy check combined
+// with a proximity check on the attribute name: high entropy AND a secret-sounding
+// attribute name = flag it.  This gives coverage without the false-positive noise.
 const SECRET_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/, label: "JWT Token" },
   { pattern: /AKIA[0-9A-Z]{16}/, label: "AWS Access Key" },
@@ -146,7 +149,40 @@ const SECRET_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /AC[a-z0-9]{32}/, label: "Twilio Account SID" },
   { pattern: /SK[a-z0-9]{32}/, label: "SendGrid API Key" },
   { pattern: /-----BEGIN (RSA |EC |DSA )?PRIVATE KEY-----/, label: "Private Key (PEM)" },
+  // Additional well-known formats
+  { pattern: /pk\.(eyJ[a-zA-Z0-9_-]{10,})/, label: "Mapbox Token" },
+  { pattern: /https:\/\/o\d+\.ingest\.sentry\.io\/[a-zA-Z0-9]+/, label: "Sentry DSN" },
 ];
+
+/** Shannon entropy of a string (bits per character, 0–8 range for ASCII). */
+function shannonEntropy(s: string): number {
+  if (s.length === 0) return 0;
+  const freq: Record<string, number> = {};
+  for (const ch of s) freq[ch] = (freq[ch] ?? 0) + 1;
+  return -Object.values(freq).reduce((sum, count) => {
+    const p = count / s.length;
+    return sum + p * Math.log2(p);
+  }, 0);
+}
+
+const SECRET_ATTR_KEYWORDS = /key|token|secret|auth|pwd|password|api|credential|access/i;
+const HIGH_ENTROPY_THRESHOLD = 4.0; // bits/char – safe floor above normal prose
+const MIN_SECRET_LENGTH = 16;      // ignore tiny values that happen to be random
+
+/**
+ * Returns true if the value looks like an undeclared secret:
+ * high Shannon entropy AND the attribute name suggests it holds a key/token.
+ * Base64 images are excluded by the length+context heuristic below.
+ */
+function looksLikeSecret(attrName: string, value: string): boolean {
+  if (value.length < MIN_SECRET_LENGTH) return false;
+  // Base64-encoded images always start with "data:" – skip them entirely
+  if (value.startsWith("data:")) return false;
+  return (
+    SECRET_ATTR_KEYWORDS.test(attrName) &&
+    shannonEntropy(value) >= HIGH_ENTROPY_THRESHOLD
+  );
+}
 
 // ── TIMESTAMP / DATE PATTERNS TO AUTO-IGNORE ─────────────────────────────────
 const TIMESTAMP_PATTERNS: RegExp[] = [
