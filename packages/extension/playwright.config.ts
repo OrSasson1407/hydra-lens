@@ -1,7 +1,8 @@
 import { defineConfig } from "@playwright/test";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const extensionPath = path.resolve(__dirname, "dist");
+const extensionPath = path.resolve(fileURLToPath(new URL(".", import.meta.url)), "dist");
 
 export default defineConfig({
   testDir: "./tests",
@@ -41,7 +42,7 @@ export default defineConfig({
       name: "security",
       testMatch: "security/**/*.spec.ts",
       use: {
-        channel: "chrome", // 👈 ADD THIS LINE
+        channel: "chrome",
         headless: true,
       },
     },
