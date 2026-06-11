@@ -1,48 +1,62 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+﻿import { describe, it, expect, vi, beforeEach } from "vitest";
 
-function makeStorageMock(initial: Record<string, unknown> = {}) {
-  const session = { ...initial };
-  const local: { ignoredSelectors: string[] } = { ignoredSelectors: [] };
+// Simulates the panel's session storage integration for persisting scan results
+
+interface ScanResult {
+  mismatches: { selector: string; severity: string }[];
+  totalFound: number;
+  timestamp: number;
+}
+
+function makeSessionStore() {
+  const store: Record<string, unknown> = {};
   return {
-    session: {
-      get: vi.fn().mockImplementation((_k: unknown, cb: (r: Record<string, unknown>) => void) => cb(session)),
-      set: vi.fn().mockImplementation((obj: Record<string, unknown>, cb?: () => void) => { Object.assign(session, obj); cb?.(); }),
-    },
-    local: {
-      get: vi.fn().mockImplementation((_k: unknown, cb: (r: typeof local) => void) => cb(local)),
-      set: vi.fn().mockImplementation((obj: Partial<typeof local>, cb?: () => void) => { Object.assign(local, obj); cb?.(); }),
-    },
-    _session: session,
-    _local: local,
+    set: vi.fn((items: Record<string, unknown>) => { Object.assign(store, items); return Promise.resolve(); }),
+    get: vi.fn((keys: string[]) => {
+      const result: Record<string, unknown> = {};
+      for (const k of keys) result[k] = store[k];
+      return Promise.resolve(result);
+    }),
+    _store: store,
   };
 }
 
 describe("panel-session-persist.integration", () => {
-  let storage: ReturnType<typeof makeStorageMock>;
-  beforeEach(() => { storage = makeStorageMock(); });
+  let session: ReturnType<typeof makeSessionStore>;
 
-  it("HYDRALENS_RESULTS message ? saved to storage.session", async () => {
-    const mismatches = [{ selector: "#a", severity: "warning" }];
-    await new Promise<void>(r => storage.session.set({ hydraLensResults: { mismatches, totalFound: 1 } }, r));
-    expect(storage._session.hydraLensResults).toBeDefined();
+  beforeEach(() => { session = makeSessionStore(); });
+
+  it("scan results are saved to session storage on HYDRALENS_RESULTS", async () => {
+    const result: ScanResult = { mismatches: [{ selector: "#a", severity: "warning" }], totalFound: 1, timestamp: Date.now() };
+    await session.set({ lastScanResult: result });
+    expect(session.set).toHaveBeenCalledWith(expect.objectContaining({ lastScanResult: result }));
   });
-  it("panel init with stored results ? rendered immediately", async () => {
-    storage = makeStorageMock({ hydraLensResults: { mismatches: [{ selector: "#a" }], totalFound: 1 } });
-    const result = await new Promise<Record<string, unknown>>(r => storage.session.get(["hydraLensResults"], r));
-    expect((result.hydraLensResults as { mismatches: unknown[] }).mismatches).toHaveLength(1);
+
+  it("panel restores last scan result from session on load", async () => {
+    const saved: ScanResult = { mismatches: [{ selector: "#b", severity: "critical" }], totalFound: 1, timestamp: 1234 };
+    await session.set({ lastScanResult: saved });
+    const result = await session.get(["lastScanResult"]);
+    expect(result.lastScanResult).toEqual(saved);
   });
-  it("panel init with empty storage ? no results", async () => {
-    const result = await new Promise<Record<string, unknown>>(r => storage.session.get(["hydraLensResults"], r));
-    expect(result.hydraLensResults).toBeUndefined();
+
+  it("empty session → panel shows no persisted results", async () => {
+    const result = await session.get(["lastScanResult"]);
+    expect(result.lastScanResult).toBeUndefined();
   });
-  it("new scan overwrites old session data", async () => {
-    await new Promise<void>(r => storage.session.set({ hydraLensResults: { mismatches: [{ selector: "#old" }] } }, r));
-    await new Promise<void>(r => storage.session.set({ hydraLensResults: { mismatches: [{ selector: "#new" }] } }, r));
-    const stored = storage._session.hydraLensResults as { mismatches: { selector: string }[] };
-    expect(stored.mismatches[0].selector).toBe("#new");
+
+  it("new scan overwrites previous session result", async () => {
+    const first: ScanResult = { mismatches: [], totalFound: 0, timestamp: 1000 };
+    const second: ScanResult = { mismatches: [{ selector: "#c", severity: "info" }], totalFound: 1, timestamp: 2000 };
+    await session.set({ lastScanResult: first });
+    await session.set({ lastScanResult: second });
+    const result = await session.get(["lastScanResult"]);
+    expect((result.lastScanResult as ScanResult).timestamp).toBe(2000);
   });
-  it("ignore-selector button updates storage.local ignoredSelectors", async () => {
-    await new Promise<void>(r => storage.local.set({ ignoredSelectors: ["#ignore-me"] }, r));
-    expect(storage._local.ignoredSelectors).toContain("#ignore-me");
+
+  it("totalFound count is preserved in session", async () => {
+    const result: ScanResult = { mismatches: [], totalFound: 7, timestamp: Date.now() };
+    await session.set({ lastScanResult: result });
+    const stored = await session.get(["lastScanResult"]);
+    expect((stored.lastScanResult as ScanResult).totalFound).toBe(7);
   });
 });

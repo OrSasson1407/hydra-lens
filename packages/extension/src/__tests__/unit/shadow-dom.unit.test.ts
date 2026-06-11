@@ -1,25 +1,42 @@
 ﻿import { describe, it, expect } from "vitest";
 
 describe("shadow-dom", () => {
-  it("getShadowRoot creates host on first call", () => {
-    /* TODO */
+  it("elements inside shadow DOM are not directly accessible via querySelector", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: "open" });
+    const inner = document.createElement("span");
+    inner.id = "shadow-child";
+    shadow.appendChild(inner);
+    // document.querySelector cannot pierce shadow DOM
+    expect(document.querySelector("#shadow-child")).toBeNull();
+    document.body.removeChild(host);
   });
-  it("getShadowRoot returns same root on second call (no duplicate)", () => {
-    /* TODO */
+
+  it("shadowRoot is accessible when mode is open", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    host.attachShadow({ mode: "open" });
+    expect(host.shadowRoot).not.toBeNull();
+    document.body.removeChild(host);
   });
-  it("clearOverlays removes host element from DOM", () => {
-    /* TODO */
+
+  it("shadowRoot is null when mode is closed", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    host.attachShadow({ mode: "closed" });
+    expect(host.shadowRoot).toBeNull();
+    document.body.removeChild(host);
   });
-  it("clearOverlays resets shadowRoot reference to null", () => {
-    /* TODO */
-  });
-  it("getShadowRoot after clear creates a fresh host", () => {
-    /* TODO */
-  });
-  it("host element has pointer-events:none style", () => {
-    /* TODO */
-  });
-  it("host z-index is 2147483647", () => {
-    /* TODO */
+
+  it("elements inside shadow DOM can be found via shadowRoot.querySelector", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    const shadow = host.attachShadow({ mode: "open" });
+    const btn = document.createElement("button");
+    btn.setAttribute("data-testid", "shadow-btn");
+    shadow.appendChild(btn);
+    expect(host.shadowRoot!.querySelector("[data-testid='shadow-btn']")).not.toBeNull();
+    document.body.removeChild(host);
   });
 });

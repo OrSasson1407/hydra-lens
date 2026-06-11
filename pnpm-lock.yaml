@@ -100,12 +100,24 @@ importers:
       '@types/chrome':
         specifier: ^0.1.40
         version: 0.1.40
+      '@types/node':
+        specifier: ^25.9.1
+        version: 25.9.1
+      '@vitest/coverage-v8':
+        specifier: ^4.1.8
+        version: 4.1.8(vitest@4.1.8)
+      jsdom:
+        specifier: ^25.0.1
+        version: 25.0.1
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
       vite:
         specifier: ^6.0.0
         version: 6.4.3(@types/node@25.9.1)(jiti@2.6.1)(lightningcss@1.32.0)
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.8(@types/node@25.9.1)(@vitest/coverage-v8@4.1.8)(@vitest/ui@4.1.8)(jsdom@25.0.1)(vite@6.4.3(@types/node@25.9.1)(jiti@2.6.1)(lightningcss@1.32.0))
 
 packages:
 
@@ -3146,7 +3158,7 @@ snapshots:
 
   '@types/jsdom@28.0.1':
     dependencies:
-      '@types/node': 22.19.19
+      '@types/node': 25.9.1
       '@types/tough-cookie': 4.0.5
       parse5: 7.3.0
       undici-types: 7.24.7
