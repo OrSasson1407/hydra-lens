@@ -13,7 +13,10 @@ function getShadowRoot(): ShadowRoot {
       // shadowRoot on the host is permanent once attached, so we can recover it.
       shadowRoot = host.shadowRoot;
     }
-    if (!host.shadowRoot) { host.attachShadow({ mode: 'open' }); } return host.shadowRoot!;
+    if (!host.shadowRoot) {
+      host.attachShadow({ mode: "open" });
+    }
+    return host.shadowRoot!;
   }
   host = document.createElement("div");
   host.id = HOST_ID;
@@ -188,8 +191,3 @@ chrome.runtime.onMessage.addListener((msg) => {
     isScanning = false;
   }
 });
-
-
-
-
-

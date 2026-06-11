@@ -13,9 +13,7 @@ interface Mismatch {
 // Minimal DOM-safe renderResults implementation mirroring the real panel logic
 function renderResults(container: HTMLElement, mismatches: Mismatch[], filter = "all") {
   container.innerHTML = "";
-  const filtered = filter === "all"
-    ? mismatches
-    : mismatches.filter((m) => m.severity === filter);
+  const filtered = filter === "all" ? mismatches : mismatches.filter((m) => m.severity === filter);
 
   if (filtered.length === 0) {
     const p = document.createElement("p");

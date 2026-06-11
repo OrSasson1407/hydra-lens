@@ -1,10 +1,24 @@
 import { describe, it, expect, vi } from "vitest";
 
 function parseSitemapXml(xml: string): string[] {
-  const raw = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map(m => m[1].trim());
+  const raw = [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1].trim());
   return raw
-    .map(u => u.replace(/<!\[CDATA\[|\]\]>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim())
-    .filter(u => { try { new URL(u); return true; } catch { return false; } });
+    .map((u) =>
+      u
+        .replace(/<!\[CDATA\[|\]\]>/g, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .trim()
+    )
+    .filter((u) => {
+      try {
+        new URL(u);
+        return true;
+      } catch {
+        return false;
+      }
+    });
 }
 
 describe("sitemap-parse.integration", () => {
@@ -13,7 +27,10 @@ describe("sitemap-parse.integration", () => {
     expect(parseSitemapXml(xml)).toEqual(["https://a.com/", "https://b.com/page"]);
   });
   it("sitemap with 100 URLs ? 100 entries returned", () => {
-    const locs = Array.from({ length: 100 }, (_, i) => `<url><loc>https://example.com/page${i}</loc></url>`).join("");
+    const locs = Array.from(
+      { length: 100 },
+      (_, i) => `<url><loc>https://example.com/page${i}</loc></url>`
+    ).join("");
     const xml = `<urlset>${locs}</urlset>`;
     expect(parseSitemapXml(xml)).toHaveLength(100);
   });

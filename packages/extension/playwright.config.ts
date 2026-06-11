@@ -30,7 +30,10 @@ export default defineConfig({
         channel: "chrome",
         headless: false,
         launchOptions: {
-          args: [`--disable-extensions-except=${extensionPath}`, `--load-extension=${extensionPath}`],
+          args: [
+            `--disable-extensions-except=${extensionPath}`,
+            `--load-extension=${extensionPath}`,
+          ],
         },
       },
     },

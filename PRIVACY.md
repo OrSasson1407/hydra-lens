@@ -4,15 +4,15 @@
 
 ## Summary
 
-HydraLens does not collect, transmit, or store any personal data.
-All processing happens locally on your device.
+HydraLens does not collect, transmit, or store any personal data. All processing
+happens locally on your device.
 
 ## Chrome Extension
 
-- **What it reads:** The DOM of the page you are actively inspecting,
-  and the server-rendered HTML of that same page fetched via `fetch()`.
-- **Why:** To compare the server HTML against the live DOM and detect
-  hydration mismatches.
+- **What it reads:** The DOM of the page you are actively inspecting, and the
+  server-rendered HTML of that same page fetched via `fetch()`.
+- **Why:** To compare the server HTML against the live DOM and detect hydration
+  mismatches.
 - **What it stores:** Ignored selectors and scan history are saved in
   `chrome.storage.local` — your browser, your device, never sent anywhere.
 - **What it never does:** HydraLens never reads pages you are not actively
@@ -23,8 +23,8 @@ All processing happens locally on your device.
 
 The extension's content script must be injected into any page the developer
 chooses to inspect. It is only activated by an explicit user action (clicking
-the toolbar button, opening the DevTools panel, or pressing Alt+Shift+H).
-The permission is not used to passively observe browsing.
+the toolbar button, opening the DevTools panel, or pressing Alt+Shift+H). The
+permission is not used to passively observe browsing.
 
 ## CLI Tool
 

@@ -14,27 +14,47 @@ describe("classify", () => {
   });
 
   it("Stripe key → security", () => {
-    const { severity } = classifyAttributeMismatch("data-key", "sk_live_UNITTESTFAKEKEY0000000", "other");
+    const { severity } = classifyAttributeMismatch(
+      "data-key",
+      "sk_live_UNITTESTFAKEKEY0000000",
+      "other"
+    );
     expect(severity).toBe("security");
   });
 
   it("GitHub PAT → security", () => {
-    const { severity } = classifyAttributeMismatch("data-token", "ghp_abcdefghijklmnopqrstuvwxyzABCDEFGHIJ", "other");
+    const { severity } = classifyAttributeMismatch(
+      "data-token",
+      "ghp_abcdefghijklmnopqrstuvwxyzABCDEFGHIJ",
+      "other"
+    );
     expect(severity).toBe("security");
   });
 
   it("Google API key → security", () => {
-    const { severity } = classifyAttributeMismatch("data-key", "AIzaSyDdI0hiBtdy8uDsZjIyFMBnMqfEXAMPLE1", "other");
+    const { severity } = classifyAttributeMismatch(
+      "data-key",
+      "AIzaSyDdI0hiBtdy8uDsZjIyFMBnMqfEXAMPLE1",
+      "other"
+    );
     expect(severity).toBe("security");
   });
 
   it("Slack token → security", () => {
-    const { severity } = classifyAttributeMismatch("data-token", "xoxb-UNITTEST-FAKE-TOKEN-NOT-REAL", "other");
+    const { severity } = classifyAttributeMismatch(
+      "data-token",
+      "xoxb-UNITTEST-FAKE-TOKEN-NOT-REAL",
+      "other"
+    );
     expect(severity).toBe("security");
   });
 
   it("PEM private key → security", () => {
-    const { severity } = classifyAttributeMismatch("data-cert", "-----BEGIN RSA PRIVATE KEY-----", "other");
+    const { severity } = classifyAttributeMismatch(
+      "data-cert",
+      "-----BEGIN RSA PRIVATE KEY-----",
+      "other"
+    );
     expect(severity).toBe("security");
   });
 
@@ -55,7 +75,11 @@ describe("classify", () => {
   });
 
   it("ISO 8601 timestamp value → info", () => {
-    const { severity } = classifyAttributeMismatch("data-ts", "2024-01-15T10:30:00Z", "2024-01-16T10:30:00Z");
+    const { severity } = classifyAttributeMismatch(
+      "data-ts",
+      "2024-01-15T10:30:00Z",
+      "2024-01-16T10:30:00Z"
+    );
     expect(severity).toBe("info");
   });
 

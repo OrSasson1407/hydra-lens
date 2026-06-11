@@ -9,16 +9,27 @@ const THRESHOLD_LEVELS: Record<string, string[]> = {
 
 function parseArgs(argv: string[]) {
   const args = argv;
-  const getFlag = (name: string) => { const i = args.indexOf(name); return i !== -1 && args[i+1] ? args[i+1] : undefined; };
+  const getFlag = (name: string) => {
+    const i = args.indexOf(name);
+    return i !== -1 && args[i + 1] ? args[i + 1] : undefined;
+  };
   const hasFlag = (name: string) => args.includes(name);
-  const urlArgs = args.filter(a => a.startsWith("http"));
+  const urlArgs = args.filter((a) => a.startsWith("http"));
   const outputFile = getFlag("--output");
   const thresholdArg = getFlag("--threshold") ?? "critical";
   const securityOnly = hasFlag("--security-only");
   const sitemapUrl = getFlag("--sitemap");
   const concurrencyArg = parseInt(getFlag("--concurrency") ?? "4", 10);
   const failSeverities = THRESHOLD_LEVELS[thresholdArg] ?? THRESHOLD_LEVELS["critical"];
-  return { urlArgs, outputFile, thresholdArg, securityOnly, sitemapUrl, concurrencyArg, failSeverities };
+  return {
+    urlArgs,
+    outputFile,
+    thresholdArg,
+    securityOnly,
+    sitemapUrl,
+    concurrencyArg,
+    failSeverities,
+  };
 }
 
 describe("arg-parsing", () => {
@@ -53,7 +64,12 @@ describe("arg-parsing", () => {
     expect(sitemapUrl).toBe("https://example.com/sitemap.xml");
   });
   it("URL args filtered from argv correctly", () => {
-    const { urlArgs } = parseArgs(["https://example.com", "--threshold", "warning", "https://test.com"]);
+    const { urlArgs } = parseArgs([
+      "https://example.com",
+      "--threshold",
+      "warning",
+      "https://test.com",
+    ]);
     expect(urlArgs).toEqual(["https://example.com", "https://test.com"]);
   });
 });

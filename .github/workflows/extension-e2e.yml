@@ -3,8 +3,8 @@ name: Extension E2E
 on:
   pull_request:
     paths:
-      - 'packages/extension/**'
-      - 'packages/core/**'
+      - "packages/extension/**"
+      - "packages/core/**"
 
 jobs:
   test_extension:
@@ -47,5 +47,3 @@ jobs:
           name: playwright-report-extension
           path: playwright-report/extension/
           retention-days: 7
-
-

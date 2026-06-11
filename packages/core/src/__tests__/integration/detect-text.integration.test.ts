@@ -49,7 +49,9 @@ describe("detect-text.integration", () => {
 
   it("nested changed text → correct selector in result", () => {
     const server = "<html><body><div><span>original</span></div></body></html>";
-    const client = makeClient("<html><body><div><span>completely changed</span></div></body></html>");
+    const client = makeClient(
+      "<html><body><div><span>completely changed</span></div></body></html>"
+    );
     const mismatches = detectMismatches(server, client, { similarityThreshold: 0.5 });
     expect(mismatches.length).toBeGreaterThan(0);
     expect(mismatches[0].selector).toContain("span");

@@ -17,19 +17,25 @@ describe("detect-attributes.integration", () => {
     const server = `<html><body><div aria-hidden="true"></div></body></html>`;
     const client = makeClient(`<html><body><div aria-hidden="false"></div></body></html>`);
     const mismatches = detectMismatches(server, client);
-    expect(mismatches.some((m) => m.severity === "critical" && m.attributeName === "aria-hidden")).toBe(true);
+    expect(
+      mismatches.some((m) => m.severity === "critical" && m.attributeName === "aria-hidden")
+    ).toBe(true);
   });
 
   it("changed aria-label → critical mismatch", () => {
     const server = `<html><body><button aria-label="Close"></button></body></html>`;
     const client = makeClient(`<html><body><button aria-label="Open"></button></body></html>`);
     const mismatches = detectMismatches(server, client);
-    expect(mismatches.some((m) => m.severity === "critical" && m.attributeName === "aria-label")).toBe(true);
+    expect(
+      mismatches.some((m) => m.severity === "critical" && m.attributeName === "aria-label")
+    ).toBe(true);
   });
 
   it("AWS key in data attribute → security mismatch", () => {
     const server = `<html><body><div data-key="AKIAIOSFODNN7EXAMPLE"></div></body></html>`;
-    const client = makeClient(`<html><body><div data-key="AKIAJSIE27AIIDH34OI2"></div></body></html>`);
+    const client = makeClient(
+      `<html><body><div data-key="AKIAJSIE27AIIDH34OI2"></div></body></html>`
+    );
     const mismatches = detectMismatches(server, client);
     expect(mismatches.some((m) => m.severity === "security")).toBe(true);
   });

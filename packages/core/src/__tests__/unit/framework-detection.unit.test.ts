@@ -2,7 +2,11 @@
 import { getComponentName } from "../../index";
 
 describe("framework-detection", () => {
-  function makeEl(tag = "div", attrs: Record<string, string> = {}, props: Record<string, unknown> = {}): Element {
+  function makeEl(
+    tag = "div",
+    attrs: Record<string, string> = {},
+    props: Record<string, unknown> = {}
+  ): Element {
     const el = document.createElement(tag);
     for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
     for (const [k, v] of Object.entries(props)) (el as unknown as Record<string, unknown>)[k] = v;

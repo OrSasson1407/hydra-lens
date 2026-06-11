@@ -7,7 +7,8 @@
 **HydraLens** is a Chrome DevTools extension and headless CLI for debugging
 React, Vue, Svelte, Solid, and Angular hydration mismatches in real-time.
 
-> 💡 **Tip:** load `packages/extension/dist` as an unpacked extension in Chrome, open any Next.js or Nuxt site, and press **Alt+Shift+H** to trigger a scan.
+> 💡 **Tip:** load `packages/extension/dist` as an unpacked extension in Chrome,
+> open any Next.js or Nuxt site, and press **Alt+Shift+H** to trigger a scan.
 
 ---
 

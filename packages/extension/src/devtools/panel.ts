@@ -114,7 +114,11 @@ chrome.runtime.onMessage.addListener((msg) => {
   if (msg.type === "HYDRALENS_PROGRESS") {
     const container = document.getElementById("results")!;
     container.innerHTML = "";
-    const status = createEl("div", { style: "color:#60a5fa;font-style:italic;" }, msg.payload.status);
+    const status = createEl(
+      "div",
+      { style: "color:#60a5fa;font-style:italic;" },
+      msg.payload.status
+    );
     container.appendChild(status);
   }
   if (msg.type === "HYDRALENS_RESULTS") {
@@ -143,11 +147,22 @@ document.getElementById("severityFilter")?.addEventListener("change", (e) => {
 });
 
 document.getElementById("copyMdBtn")?.addEventListener("click", () => {
-  if (currentMismatches.length === 0) { alert("No results to copy."); return; }
-  const lines = ["# HydraLens Report\n", "| Severity | Component | Selector | Reason | Advice |", "|---|---|---|---|---|"];
+  if (currentMismatches.length === 0) {
+    alert("No results to copy.");
+    return;
+  }
+  const lines = [
+    "# HydraLens Report\n",
+    "| Severity | Component | Selector | Reason | Advice |",
+    "|---|---|---|---|---|",
+  ];
   for (const m of currentMismatches)
-    lines.push(`| ${m.severity} | ${m.componentName ?? "Unknown"} | \`${m.selector}\` | ${m.severityReason} | ${m.advice} |`);
-  navigator.clipboard.writeText(lines.join("\n")).then(() => alert("Markdown copied to clipboard!"));
+    lines.push(
+      `| ${m.severity} | ${m.componentName ?? "Unknown"} | \`${m.selector}\` | ${m.severityReason} | ${m.advice} |`
+    );
+  navigator.clipboard
+    .writeText(lines.join("\n"))
+    .then(() => alert("Markdown copied to clipboard!"));
 });
 
 document.getElementById("clearIgnoreBtn")?.addEventListener("click", () => {
@@ -156,8 +171,3 @@ document.getElementById("clearIgnoreBtn")?.addEventListener("click", () => {
 
 // FIX: restore last scan results when the panel mounts (fixes blank-panel-on-open)
 restoreResults();
-
-
-
-
-

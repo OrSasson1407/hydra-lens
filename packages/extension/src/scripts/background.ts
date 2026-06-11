@@ -40,5 +40,3 @@ chrome.runtime.onMessage.addListener((msg) => {
     chrome.storage.local.set({ autoScan: msg.enabled });
   }
 });
-
-

@@ -1,7 +1,6 @@
 ﻿{
   "version": "2.0.0",
   "tasks": [
-
     // ── Individual build tasks ────────────────────────────────────────────────
     {
       "label": "Build: core",
@@ -141,7 +140,12 @@
       "type": "shell",
       "command": "pnpm typecheck && pnpm lint && pnpm format:check && echo \"\n✅ Gate 1 passed: lint / typecheck / format\"",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": ["$tsc", "$eslint-stylish"]
     },
 
@@ -152,7 +156,12 @@
       "command": "pnpm test:unit && pnpm test:integration && pnpm test:security && echo \"\n✅ Gate 2 passed: unit / integration / security tests\"",
       "dependsOn": "CI: 1 - Lint + Typecheck + Format",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": []
     },
 
@@ -163,7 +172,12 @@
       "command": "pnpm build && echo \"\n✅ Gate 3 passed: build\"",
       "dependsOn": "CI: 2 - Unit + Integration + Security tests",
       "group": "build",
-      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": ["$tsc"]
     },
 
@@ -174,7 +188,12 @@
       "command": "pnpm test:e2e:cli && pnpm test:e2e:extension && pnpm test:system && echo \"\n✅ Gate 4 passed: e2e / system tests\"",
       "dependsOn": "CI: 3 - Build",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": []
     },
 
@@ -198,7 +217,12 @@
       "type": "shell",
       "command": "pnpm typecheck && pnpm lint && pnpm test:unit && echo \"\n✅ Smoke check passed — safe to commit\"",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      },
       "problemMatcher": ["$tsc", "$eslint-stylish"]
     },
 
@@ -208,7 +232,12 @@
       "type": "shell",
       "command": "pnpm build && npx serve demo-app -p 3000 & sleep 2 && node packages/cli/dist/index.js --security-only --threshold security --output report.json http://localhost:3000; kill %1 2>$null; echo \"\n✅ Security scan complete — see report.json\"",
       "group": "test",
-      "presentation": { "reveal": "always", "panel": "dedicated", "showReuseMessage": false, "clear": true }
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false,
+        "clear": true
+      }
     }
   ]
 }

@@ -87,7 +87,8 @@ const ADVICE_DATABASE: Record<string, Record<string, { advice: string; snippet: 
         "const [mounted, setMounted] = useState(false);\nuseEffect(() => setMounted(true), []);\nif (!mounted) return <div>{serverFallback}</div>;",
     },
     "attribute-mismatch": {
-      advice: "Wrap dynamic attributes with `suppressHydrationWarning` or defer them via `useEffect`.",
+      advice:
+        "Wrap dynamic attributes with `suppressHydrationWarning` or defer them via `useEffect`.",
       snippet: "<div suppressHydrationWarning data-dynamic={clientValue} />",
     },
   },
@@ -142,7 +143,7 @@ export function getFix(
 const SECRET_PATTERNS: { pattern: RegExp; label: string }[] = [
   { pattern: /eyJ[a-zA-Z0-9_-]{10,}\.[a-zA-Z0-9_-]{10,}/, label: "JWT Token" },
   { pattern: /AKIA[0-9A-Z]{16}/, label: "AWS Access Key" },
-  { pattern: /sk_(live|test)_[a-zA-Z0-9]{24,}/, label: "Stripe Secret Key" },
+  { pattern: /sk_(live|test)_[a-zA-Z0-9]{20,}/, label: "Stripe Secret Key" },
   { pattern: /ghp_[a-zA-Z0-9]{36}/, label: "GitHub Personal Access Token" },
   { pattern: /AIza[0-9A-Za-z_-]{35}/, label: "Google API Key" },
   { pattern: /xox[baprs]-[0-9A-Za-z-]{10,}/, label: "Slack Token" },
@@ -167,7 +168,7 @@ function shannonEntropy(s: string): number {
 
 const SECRET_ATTR_KEYWORDS = /key|token|secret|auth|pwd|password|api|credential|access/i;
 const HIGH_ENTROPY_THRESHOLD = 4.0; // bits/char – safe floor above normal prose
-const MIN_SECRET_LENGTH = 16;      // ignore tiny values that happen to be random
+const MIN_SECRET_LENGTH = 16; // ignore tiny values that happen to be random
 
 /**
  * Returns true if the value looks like an undeclared secret:
@@ -178,10 +179,7 @@ function looksLikeSecret(attrName: string, value: string): boolean {
   if (value.length < MIN_SECRET_LENGTH) return false;
   // Base64-encoded images always start with "data:" – skip them entirely
   if (value.startsWith("data:")) return false;
-  return (
-    SECRET_ATTR_KEYWORDS.test(attrName) &&
-    shannonEntropy(value) >= HIGH_ENTROPY_THRESHOLD
-  );
+  return SECRET_ATTR_KEYWORDS.test(attrName) && shannonEntropy(value) >= HIGH_ENTROPY_THRESHOLD;
 }
 
 // ── TIMESTAMP / DATE PATTERNS TO AUTO-IGNORE ─────────────────────────────────
@@ -253,10 +251,16 @@ export function getComponentName(el: Element): string | null {
   // SolidJS: leaves _$owner on reactive nodes
   if ((el as any)._$owner !== undefined) return "SolidComponent";
   // Next.js: sets __NEXT_DATA__ on window and data-nextjs-* attributes
-  if (el.closest("[data-nextjs-scroll-focus-boundary]") || (typeof window !== "undefined" && (window as any).__NEXT_DATA__))
+  if (
+    el.closest("[data-nextjs-scroll-focus-boundary]") ||
+    (typeof window !== "undefined" && (window as any).__NEXT_DATA__)
+  )
     return "NextComponent";
   // Nuxt: sets __nuxt on window and data-server-rendered on root
-  if (el.hasAttribute("data-server-rendered") || (typeof window !== "undefined" && (window as any).__nuxt))
+  if (
+    el.hasAttribute("data-server-rendered") ||
+    (typeof window !== "undefined" && (window as any).__nuxt)
+  )
     return "NuxtComponent";
   return null;
 }
@@ -282,7 +286,10 @@ export function classifyAttributeMismatch(
     }
   }
   if (looksLikeSecret(attrName, serverVal) || looksLikeSecret(attrName, clientVal)) {
-    return { severity: "security", reason: "High-entropy value in sensitive attribute (possible undeclared secret)" };
+    return {
+      severity: "security",
+      reason: "High-entropy value in sensitive attribute (possible undeclared secret)",
+    };
   }
   if (attrName.startsWith("aria-") || attrName === "role") {
     return {
@@ -460,5 +467,3 @@ export async function detectMismatchesAsync(
 
   return mismatches;
 }
-
-

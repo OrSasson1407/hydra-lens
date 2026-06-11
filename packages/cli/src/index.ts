@@ -11,7 +11,9 @@ import { execSync } from "child_process";
     const result = execSync("npm view @hydra-lens/cli version --json 2>/dev/null", {
       encoding: "utf-8",
       timeout: 3000,
-    }).trim().replace(/"/g, "");
+    })
+      .trim()
+      .replace(/"/g, "");
     if (result && result !== current) {
       console.log(
         `\n[HydraLens] Update available: ${current} -> ${result}. Run: pnpm add -g @hydra-lens/cli@latest\n`
@@ -71,8 +73,23 @@ async function fetchSitemapUrls(url: string): Promise<string[]> {
   const text = await res.text();
   const raw = [...text.matchAll(/<loc>(.*?)<\/loc>/g)].map((m) => m[1].trim());
   return raw
-    .map((u) => u.replace(/<!\[CDATA\[|\]\]>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").trim())
-    .filter((u) => { try { new URL(u); return true; } catch { console.warn(`[HydraLens] Skipping invalid sitemap URL: ${u}`); return false; } });
+    .map((u) =>
+      u
+        .replace(/<!\[CDATA\[|\]\]>/g, "")
+        .replace(/&amp;/g, "&")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
+        .trim()
+    )
+    .filter((u) => {
+      try {
+        new URL(u);
+        return true;
+      } catch {
+        console.warn(`[HydraLens] Skipping invalid sitemap URL: ${u}`);
+        return false;
+      }
+    });
 }
 
 // ?? Single page scan (uses a shared browser passed in) ???????????????????????
@@ -85,7 +102,12 @@ interface ScanResult {
 
 // FIX: browser is now a parameter ן¿½ callers share a single instance instead of
 //      launching and destroying a new process for every URL in the list.
-async function scanPage(url: string, browser: Browser, coreBundle: string, storageState?: string): Promise<ScanResult> {
+async function scanPage(
+  url: string,
+  browser: Browser,
+  coreBundle: string,
+  storageState?: string
+): Promise<ScanResult> {
   const context = await browser.newContext(storageState ? { storageState } : {});
   const page = await context.newPage();
   const start = Date.now();
@@ -103,7 +125,12 @@ async function scanPage(url: string, browser: Browser, coreBundle: string, stora
     );
     return { url, mismatches, durationMs: Date.now() - start };
   } catch (e: unknown) {
-    return { url, mismatches: [], durationMs: Date.now() - start, error: e instanceof Error ? e.message : String(e) };
+    return {
+      url,
+      mismatches: [],
+      durationMs: Date.now() - start,
+      error: e instanceof Error ? e.message : String(e),
+    };
   } finally {
     await page.close();
     await context.close();
@@ -156,7 +183,9 @@ async function main(): Promise<void> {
     if (result.error) {
       console.log(`ERROR: ${result.error}`);
     } else {
-      const failures = result.mismatches.filter((m: Mismatch) => failSeverities.includes(m.severity));
+      const failures = result.mismatches.filter((m: Mismatch) =>
+        failSeverities.includes(m.severity)
+      );
       console.log(
         `${result.mismatches.length} issues (${failures.length} blocking) in ${result.durationMs}ms`
       );
@@ -174,7 +203,9 @@ async function main(): Promise<void> {
   console.log(`${"URL".padEnd(50)} | Issues | Blocking`);
   console.log(`${"-".repeat(50)}-+--------+---------`);
   allResults.forEach((r) => {
-    const blocking = r.mismatches.filter((m: Mismatch) => failSeverities.includes(m.severity)).length;
+    const blocking = r.mismatches.filter((m: Mismatch) =>
+      failSeverities.includes(m.severity)
+    ).length;
     console.log(
       `${r.url.slice(0, 50).padEnd(50)} | ${String(r.mismatches.length).padEnd(6)} | ${blocking}`
     );
@@ -209,7 +240,3 @@ main().catch((e) => {
   console.error("[HydraLens] Fatal:", e);
   process.exit(1);
 });
-
-
-
-

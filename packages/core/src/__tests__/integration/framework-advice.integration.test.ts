@@ -61,7 +61,15 @@ describe("framework-advice.integration", () => {
   });
 
   it("fixSnippet is non-empty for all known frameworks", () => {
-    const frameworks = ["ReactComponent", "VueComponent", "SvelteComponent", "SolidComponent", "AngularComponent", "NextComponent", "NuxtComponent"];
+    const frameworks = [
+      "ReactComponent",
+      "VueComponent",
+      "SvelteComponent",
+      "SolidComponent",
+      "AngularComponent",
+      "NextComponent",
+      "NuxtComponent",
+    ];
     for (const fw of frameworks) {
       const { snippet } = getFix(fw, "Text content mismatch");
       expect(snippet.length).toBeGreaterThan(0);

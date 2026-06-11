@@ -3,7 +3,8 @@ import { classifyAttributeMismatch } from "../../index";
 
 describe("Security: Advanced Token & Key Obfuscation Bypasses", () => {
   it("flags JWTs even if prepended with whitespace or random text", () => {
-    const jwt = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4ifQ";
+    const jwt =
+      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4ifQ";
     const { severity } = classifyAttributeMismatch("data-auth", jwt, "other");
     expect(severity).toBe("security");
   });

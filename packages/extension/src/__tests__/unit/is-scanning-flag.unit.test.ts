@@ -4,12 +4,15 @@ function makeScanner() {
   let isScanning = false;
   const calls: string[] = [];
   async function runHydraLens(fail = false) {
-    if (isScanning) { calls.push("no-op"); return; }
+    if (isScanning) {
+      calls.push("no-op");
+      return;
+    }
     isScanning = true;
     calls.push("started");
     try {
       if (fail) throw new Error("scan error");
-      await new Promise(r => setTimeout(r, 0));
+      await new Promise((r) => setTimeout(r, 0));
       calls.push("done");
     } catch {
       calls.push("error");

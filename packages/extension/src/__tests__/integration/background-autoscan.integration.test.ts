@@ -4,13 +4,28 @@ function makeChrome(autoScanDefault = true) {
   let autoScan = autoScanDefault;
   const sent: unknown[] = [];
   return {
-    storage: { local: {
-      get: vi.fn().mockImplementation((_k: unknown, cb: (r: Record<string, unknown>) => void) => cb({ autoScan })),
-      set: vi.fn().mockImplementation((obj: Record<string, unknown>) => { if ("autoScan" in obj) autoScan = obj.autoScan as boolean; }),
-    }},
-    tabs: { sendMessage: vi.fn().mockImplementation((_id: number, msg: unknown) => { sent.push(msg); return Promise.resolve(); }) },
+    storage: {
+      local: {
+        get: vi
+          .fn()
+          .mockImplementation((_k: unknown, cb: (r: Record<string, unknown>) => void) =>
+            cb({ autoScan })
+          ),
+        set: vi.fn().mockImplementation((obj: Record<string, unknown>) => {
+          if ("autoScan" in obj) autoScan = obj.autoScan as boolean;
+        }),
+      },
+    },
+    tabs: {
+      sendMessage: vi.fn().mockImplementation((_id: number, msg: unknown) => {
+        sent.push(msg);
+        return Promise.resolve();
+      }),
+    },
     sent,
-    setAutoScan: (v: boolean) => { autoScan = v; },
+    setAutoScan: (v: boolean) => {
+      autoScan = v;
+    },
   };
 }
 
@@ -21,9 +36,16 @@ describe("background-autoscan.integration", () => {
     const chrome = makeChrome();
     const handler = async (details: { frameId: number; tabId: number }) => {
       if (details.frameId !== 0) return;
-      const autoScan: boolean = await new Promise(r => chrome.storage.local.get(["autoScan"], (res: Record<string, unknown>) => r(res.autoScan !== false)));
+      const autoScan: boolean = await new Promise((r) =>
+        chrome.storage.local.get(["autoScan"], (res: Record<string, unknown>) =>
+          r(res.autoScan !== false)
+        )
+      );
       if (!autoScan) return;
-      setTimeout(() => chrome.tabs.sendMessage(details.tabId, { type: "HYDRALENS_RUN" }).catch(() => {}), 1500);
+      setTimeout(
+        () => chrome.tabs.sendMessage(details.tabId, { type: "HYDRALENS_RUN" }).catch(() => {}),
+        1500
+      );
     };
     await handler({ frameId: 0, tabId: 1 });
     vi.advanceTimersByTime(1500);
@@ -33,7 +55,10 @@ describe("background-autoscan.integration", () => {
     const chrome = makeChrome();
     const handler = async (details: { frameId: number; tabId: number }) => {
       if (details.frameId !== 0) return;
-      setTimeout(() => chrome.tabs.sendMessage(details.tabId, { type: "HYDRALENS_RUN" }).catch(() => {}), 1500);
+      setTimeout(
+        () => chrome.tabs.sendMessage(details.tabId, { type: "HYDRALENS_RUN" }).catch(() => {}),
+        1500
+      );
     };
     await handler({ frameId: 1, tabId: 1 });
     vi.advanceTimersByTime(1500);
@@ -47,8 +72,13 @@ describe("background-autoscan.integration", () => {
   });
   it("autoScan=false ? message not sent", async () => {
     const chrome = makeChrome(false);
-    const autoScan: boolean = await new Promise(r => chrome.storage.local.get(["autoScan"], (res: Record<string, unknown>) => r(res.autoScan !== false)));
-    if (autoScan) setTimeout(() => chrome.tabs.sendMessage(1, { type: "HYDRALENS_RUN" }).catch(() => {}), 1500);
+    const autoScan: boolean = await new Promise((r) =>
+      chrome.storage.local.get(["autoScan"], (res: Record<string, unknown>) =>
+        r(res.autoScan !== false)
+      )
+    );
+    if (autoScan)
+      setTimeout(() => chrome.tabs.sendMessage(1, { type: "HYDRALENS_RUN" }).catch(() => {}), 1500);
     vi.advanceTimersByTime(1500);
     expect(chrome.sent).toHaveLength(0);
   });

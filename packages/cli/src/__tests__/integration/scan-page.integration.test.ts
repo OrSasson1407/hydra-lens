@@ -1,10 +1,17 @@
 import { describe, it, expect, vi } from "vitest";
 
-interface ScanResult { url: string; mismatches: unknown[]; durationMs: number; error?: string; }
+interface ScanResult {
+  url: string;
+  mismatches: unknown[];
+  durationMs: number;
+  error?: string;
+}
 
 function makeMockBrowser(opts: { fail?: boolean; mismatches?: unknown[] } = {}) {
   const page = {
-    request: { get: vi.fn().mockResolvedValue({ text: vi.fn().mockResolvedValue("<html></html>") }) },
+    request: {
+      get: vi.fn().mockResolvedValue({ text: vi.fn().mockResolvedValue("<html></html>") }),
+    },
     addInitScript: vi.fn().mockResolvedValue(undefined),
     goto: opts.fail
       ? vi.fn().mockRejectedValue(new Error("net::ERR_CONNECTION_REFUSED"))
@@ -12,11 +19,18 @@ function makeMockBrowser(opts: { fail?: boolean; mismatches?: unknown[] } = {}) 
     evaluate: vi.fn().mockResolvedValue(opts.mismatches ?? []),
     close: vi.fn().mockResolvedValue(undefined),
   };
-  const context = { newPage: vi.fn().mockResolvedValue(page), close: vi.fn().mockResolvedValue(undefined) };
+  const context = {
+    newPage: vi.fn().mockResolvedValue(page),
+    close: vi.fn().mockResolvedValue(undefined),
+  };
   return { newContext: vi.fn().mockResolvedValue(context), page, context };
 }
 
-async function scanPage(url: string, browser: ReturnType<typeof makeMockBrowser>, coreBundle: string): Promise<ScanResult> {
+async function scanPage(
+  url: string,
+  browser: ReturnType<typeof makeMockBrowser>,
+  coreBundle: string
+): Promise<ScanResult> {
   const context = await browser.newContext({});
   const page = await context.newPage();
   const start = Date.now();
